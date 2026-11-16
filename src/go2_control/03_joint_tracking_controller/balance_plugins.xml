@@ -1,0 +1,1 @@
+<library path="go2_balance_effort_controller"><class name="go2_control/BalanceEffortController" type="go2_control::BalanceEffortController" base_class_type="controller_interface::ControllerInterface"><description>Exclusive effort control with explicit feedforward and PD feedback.</description></class></library>

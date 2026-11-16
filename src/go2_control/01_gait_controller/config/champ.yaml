@@ -1,0 +1,12 @@
+go2_champ_controller:
+  ros__parameters:
+    use_sim_time: true
+    nominal_height: 0.33913
+    transfer_duration: 0.5
+    swing_duration: 0.4
+    swing_height: 0.04
+    support_margin: 0.025
+    max_velocity_x: 0.04
+    max_velocity_y: 0.02
+    max_yaw_rate: 0.10
+    single_leg_test: -1

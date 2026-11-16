@@ -1,0 +1,7 @@
+# Mission file format (spec 6.1). A waypoint is an area: arrived = body centre within radius_m.
+# Check before running:  ros2 run go2_task task_preflight example
+# x, y in the map frame [m]; yaw [rad] optional (only a final turn); radius_m optional (default arrive_radius_m).
+waypoints:
+  - {name: start, x: 0.0, y: 0.0}
+  - {name: door, x: 2.0, y: 0.5, radius_m: 0.5}
+  - {name: desk, x: 3.0, y: -1.0, yaw: 1.57}

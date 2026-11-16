@@ -1,0 +1,16 @@
+waypoints:
+- name: 点1
+  x: -3.228
+  y: 0.439
+  radius_m: 0.4
+  yaw: -2.989
+- name: 点2
+  x: -8.012
+  y: 0.016
+  radius_m: 0.4
+  yaw: -2.467
+- name: 点3
+  x: -10.835
+  y: -2.021
+  radius_m: 0.4
+  yaw: -2.548

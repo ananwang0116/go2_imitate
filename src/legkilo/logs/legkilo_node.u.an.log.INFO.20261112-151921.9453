@@ -1,0 +1,301 @@
+Log file created at: 2026/11/12 15:19:21
+Running on machine: u
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I1112 15:19:21.231917  9453 glog_utils.hpp:129] Pruned 1 old log files (keep per level = 20) — oldest deleted about 0 days old.
+I1112 15:19:21.232127  9453 ros_interface.cc:41] Ros2 Interface is being Constructed
+I1112 15:19:21.237121  9453 yaml_helper.hpp:64] YAML Key:  lidar_topic = /sim/kilo_points
+I1112 15:19:21.237150  9453 yaml_helper.hpp:64] YAML Key:  sensor_type = LIO
+I1112 15:19:21.237161  9453 yaml_helper.hpp:80] YAML Key: redundancy = false
+I1112 15:19:21.237186  9453 yaml_helper.hpp:80] YAML Key: lidar_time_offset = 0
+I1112 15:19:21.237214  9453 yaml_helper.hpp:64] YAML Key:  imu_topic = /sim/kilo_imu
+I1112 15:19:21.237879  9453 yaml_helper.hpp:64] YAML Key:  sensor_type = LIO
+I1112 15:19:21.237890  9453 KILO.cc:60] SensorType = LIO
+I1112 15:19:21.237916  9453 yaml_helper.hpp:80] YAML Key: vel_process_cov = 20
+I1112 15:19:21.237939  9453 yaml_helper.hpp:80] YAML Key: imu_acc_process_cov = 500
+I1112 15:19:21.237954  9453 yaml_helper.hpp:80] YAML Key: imu_gyr_process_cov = 1000
+I1112 15:19:21.237967  9453 yaml_helper.hpp:80] YAML Key: acc_bias_process_cov = 0.001
+I1112 15:19:21.237979  9453 yaml_helper.hpp:80] YAML Key: gyr_bias_process_cov = 0.001
+I1112 15:19:21.237991  9453 yaml_helper.hpp:64] YAML Key:  imu_acc_meas_noise = 0.1
+I1112 15:19:21.238003  9453 yaml_helper.hpp:64] YAML Key:  imu_gyr_meas_noise = 0.01
+I1112 15:19:21.238015  9453 yaml_helper.hpp:80] YAML Key: p2plane_kernel_threshold = 5
+I1112 15:19:21.238027  9453 yaml_helper.hpp:80] YAML Key: ndt_kernel_threshold = 5
+I1112 15:19:21.238041  9453 yaml_helper.hpp:80] YAML Key: two_step_lidar_eskf = true
+I1112 15:19:21.238049  9453 yaml_helper.hpp:80] YAML Key: p2plane_enable = true
+I1112 15:19:21.238056  9453 yaml_helper.hpp:80] YAML Key: ndt_enable = true
+I1112 15:19:21.238067  9453 yaml_helper.hpp:80] YAML Key: use_state_covariance_for_lidar_points = true
+I1112 15:19:21.238078  9453 yaml_helper.hpp:80] YAML Key: ieskf_max_iterations = 3
+I1112 15:19:21.238107  9453 yaml_helper.hpp:80] YAML Key: gravity = 9.81
+I1112 15:19:21.238117  9453 yaml_helper.hpp:80] YAML Key: init_type = 2
+I1112 15:19:21.238138  9453 yaml_helper.hpp:64] YAML Key:  dept_err = 0.04
+I1112 15:19:21.238148  9453 yaml_helper.hpp:64] YAML Key:  beam_err = 0.2
+I1112 15:19:21.238157  9453 yaml_helper.hpp:64] YAML Key:  voxel_size = 0.5
+I1112 15:19:21.238171  9453 yaml_helper.hpp:80] YAML Key: capacity = 300000
+I1112 15:19:21.238179  9453 yaml_helper.hpp:80] YAML Key: nearby_type = 0
+I1112 15:19:21.238186  9453 yaml_helper.hpp:80] YAML Key: voxel_max_num = 50
+I1112 15:19:21.238194  9453 yaml_helper.hpp:80] YAML Key: planar_ratio = 0.1
+I1112 15:19:21.238204  9453 yaml_helper.hpp:80] YAML Key: planar_thickness = 0.1
+I1112 15:19:21.238212  9453 yaml_helper.hpp:80] YAML Key: ndt_min_points = 5
+I1112 15:19:21.238226  9453 yaml_helper.hpp:80] YAML Key: ndt_jitter = 1e-06
+I1112 15:19:21.238240  9453 yaml_helper.hpp:80] YAML Key: ndt_eigenvalue_regularization = true
+I1112 15:19:21.238251  9453 yaml_helper.hpp:80] YAML Key: ndt_min_eigenvalue = 1e-06
+I1112 15:19:21.238265  9453 yaml_helper.hpp:80] YAML Key: ndt_max_condition = 1000
+I1112 15:19:21.238286  9453 yaml_helper.hpp:64] YAML Key:  extrinsic_T = [0.2954, 0, 0.097]
+I1112 15:19:21.238305  9453 yaml_helper.hpp:64] YAML Key:  extrinsic_R = [-0.506184, -0.028895, 0.861941, 0, -0.999439, -0.033504, 0.862425, -0.016959, 0.5059]
+I1112 15:19:21.238322  9453 yaml_helper.hpp:64] YAML Key:  voxel_grid_resolution = 0.3
+I1112 15:19:21.238332  9453 yaml_helper.hpp:80] YAML Key: voxel_grid_mode = 1
+I1112 15:19:21.238339  9453 yaml_helper.hpp:80] YAML Key: voxel_grid_target_num = 3000
+I1112 15:19:21.238348  9453 yaml_helper.hpp:80] YAML Key: voxel_grid_overshoot = 1.5
+I1112 15:19:21.239009  9453 yaml_helper.hpp:80] YAML Key: kf_trans_threshold = 0.3
+I1112 15:19:21.239027  9453 yaml_helper.hpp:80] YAML Key: kf_degree_threshold = 10
+I1112 15:19:21.239039  9453 yaml_helper.hpp:80] YAML Key: kf_max_num_submap = 20
+I1112 15:19:21.239048  9453 yaml_helper.hpp:80] YAML Key: kf_max_dist_submap = 5
+I1112 15:19:21.239064  9453 yaml_helper.hpp:80] YAML Key: submap_idle_finish_timeout = 1
+I1112 15:19:21.239077  9453 yaml_helper.hpp:80] YAML Key: temp_result_save_folder = go2_sim_run
+I1112 15:19:21.361239  9453 yaml_helper.hpp:80] YAML Key: factor_graph_max_iterations = 100
+I1112 15:19:21.361326  9453 yaml_helper.hpp:80] YAML Key: odom_near_trans_sigma = 0.1
+I1112 15:19:21.361352  9453 yaml_helper.hpp:80] YAML Key: odom_near_rot_sigma_deg = 5
+I1112 15:19:21.361366  9453 yaml_helper.hpp:80] YAML Key: odom_next_trans_sigma_multiplier = 2
+I1112 15:19:21.361377  9453 yaml_helper.hpp:80] YAML Key: odom_next_rot_sigma_multiplier = 2
+I1112 15:19:21.361392  9453 yaml_helper.hpp:80] YAML Key: loopclosure_trans_sigma_multiplier = 10
+I1112 15:19:21.361406  9453 yaml_helper.hpp:80] YAML Key: loopclosure_rot_sigma_multiplier = 4
+I1112 15:19:21.361431  9453 yaml_helper.hpp:80] YAML Key: loopclosure_loss_scale = 3
+I1112 15:19:21.361438  9453 factor_graph.cc:38] FactorGraph is constructed
+I1112 15:19:21.361492  9453 yaml_helper.hpp:80] YAML Key: loop_closure_enable = true
+I1112 15:19:21.362112  9453 yaml_helper.hpp:80] YAML Key: loop_search_radius = 10
+I1112 15:19:21.362133  9453 yaml_helper.hpp:80] YAML Key: loop_min_id_separation = 2
+I1112 15:19:21.362144  9453 yaml_helper.hpp:80] YAML Key: loop_icp_max_corr_dist = 2
+I1112 15:19:21.362161  9453 yaml_helper.hpp:80] YAML Key: loop_icp_inlier_dist_threshold = 0.5
+I1112 15:19:21.362174  9453 yaml_helper.hpp:80] YAML Key: loop_icp_max_iterations = 20
+I1112 15:19:21.362185  9453 yaml_helper.hpp:80] YAML Key: loop_icp_fitness_threshold = 0.7
+I1112 15:19:21.362200  9453 yaml_helper.hpp:80] YAML Key: loop_icp_num_threads = 2
+I1112 15:19:21.362210  9453 yaml_helper.hpp:80] YAML Key: loop_verify_max_attempts = 1
+I1112 15:19:21.362221  9453 yaml_helper.hpp:80] YAML Key: loop_kiss_matcher_enabled = false
+I1112 15:19:21.362232  9453 yaml_helper.hpp:80] YAML Key: loop_kiss_inliers_threshold = 40
+I1112 15:19:21.362243  9453 yaml_helper.hpp:80] YAML Key: loop_kiss_refine_min_id_gap = 100
+I1112 15:19:21.362254  9453 yaml_helper.hpp:80] YAML Key: loop_kiss_use_quatro = true
+I1112 15:19:21.362267  9453 yaml_helper.hpp:80] YAML Key: temp_result_save_folder = go2_sim_run
+I1112 15:19:21.362663  9453 yaml_helper.hpp:80] YAML Key: min_range = 0.5
+I1112 15:19:21.362681  9453 yaml_helper.hpp:80] YAML Key: max_range = 20
+I1112 15:19:21.362691  9453 yaml_helper.hpp:80] YAML Key: filter_num = 1
+I1112 15:19:21.362701  9453 yaml_helper.hpp:64] YAML Key:  time_scale = 1
+I1112 15:19:21.362709  9453 yaml_helper.hpp:64] YAML Key:  lidar_type = 1
+I1112 15:19:21.362715  9453 lidar_processing.cc:5] Lidar Processing is Constructed
+I1112 15:19:21.395403  9525 ros_interface.cc:151] Lidar Loop Begin
+I1112 15:19:21.514452  9529 ros_interface.cc:156] IMU Loop Begin
+I1112 15:19:21.614274  9453 leg_kilo_node_ros2.cc:64] Leg KILO Node Starts
+I1112 15:19:35.258216  9453 KILO.cc:556] Gravity is initialized to  0.000  0.000 -9.810
+I1112 15:19:35.258244  9453 KILO.cc:557] IMU bw is initialized to 1.71383e-05 0.000169654  2.5206e-06
+I1112 15:19:35.258281  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9035, down_pts_size: 3255, success_pts_size: 3255, p2p_count: 0, ndt_count: 0}
+I1112 15:19:37.424470  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9035, down_pts_size: 3242, success_pts_size: 3242, p2p_count: 3153, ndt_count: 89}
+I1112 15:19:39.579551  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9039, down_pts_size: 3255, success_pts_size: 3255, p2p_count: 3168, ndt_count: 87}
+I1112 15:19:41.740006  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9031, down_pts_size: 3242, success_pts_size: 3242, p2p_count: 3157, ndt_count: 85}
+I1112 15:19:43.910458  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9042, down_pts_size: 3249, success_pts_size: 3249, p2p_count: 3161, ndt_count: 88}
+I1112 15:19:46.097170  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9038, down_pts_size: 3243, success_pts_size: 3243, p2p_count: 3156, ndt_count: 87}
+I1112 15:19:48.278649  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9042, down_pts_size: 3255, success_pts_size: 3255, p2p_count: 3172, ndt_count: 83}
+I1112 15:19:50.445178  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9035, down_pts_size: 3247, success_pts_size: 3247, p2p_count: 3156, ndt_count: 91}
+I1112 15:19:52.623661  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9039, down_pts_size: 3244, success_pts_size: 3244, p2p_count: 3151, ndt_count: 93}
+I1112 15:19:54.832935  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9029, down_pts_size: 3233, success_pts_size: 3233, p2p_count: 3145, ndt_count: 88}
+I1112 15:19:57.004761  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9031, down_pts_size: 3246, success_pts_size: 3246, p2p_count: 3165, ndt_count: 81}
+I1112 15:19:59.189112  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9033, down_pts_size: 3250, success_pts_size: 3250, p2p_count: 3166, ndt_count: 84}
+I1112 15:20:01.365211  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9030, down_pts_size: 3246, success_pts_size: 3245, p2p_count: 3157, ndt_count: 88}
+I1112 15:20:03.529151  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9039, down_pts_size: 3241, success_pts_size: 3240, p2p_count: 3146, ndt_count: 94}
+I1112 15:20:05.714120  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9034, down_pts_size: 3233, success_pts_size: 3233, p2p_count: 3142, ndt_count: 91}
+I1112 15:20:07.920136  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9035, down_pts_size: 3245, success_pts_size: 3245, p2p_count: 3153, ndt_count: 92}
+I1112 15:20:10.108466  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9033, down_pts_size: 3238, success_pts_size: 3238, p2p_count: 3144, ndt_count: 94}
+I1112 15:20:12.307811  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8997, down_pts_size: 3313, success_pts_size: 3265, p2p_count: 3143, ndt_count: 122}
+I1112 15:20:14.491173  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8470, down_pts_size: 2652, success_pts_size: 2592, p2p_count: 2542, ndt_count: 50}
+I1112 15:20:16.695897  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8784, down_pts_size: 2758, success_pts_size: 2719, p2p_count: 2569, ndt_count: 150}
+I1112 15:20:18.934629  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9145, down_pts_size: 2844, success_pts_size: 2844, p2p_count: 2668, ndt_count: 176}
+I1112 15:20:21.170324  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9389, down_pts_size: 2608, success_pts_size: 2600, p2p_count: 2447, ndt_count: 153}
+I1112 15:20:21.508283  9524 factor_graph.cc:117] FactorGraph optimization done. Iterations: 0, final cost: 0
+I1112 15:20:23.395080  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9514, down_pts_size: 2919, success_pts_size: 2914, p2p_count: 2840, ndt_count: 74}
+I1112 15:20:25.626307  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9843, down_pts_size: 2939, success_pts_size: 2936, p2p_count: 2863, ndt_count: 73}
+I1112 15:20:27.857749  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9728, down_pts_size: 3068, success_pts_size: 3067, p2p_count: 2989, ndt_count: 78}
+I1112 15:20:30.091363  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9742, down_pts_size: 2847, success_pts_size: 2847, p2p_count: 2792, ndt_count: 55}
+I1112 15:20:32.315805  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 5603, down_pts_size: 2115, success_pts_size: 2115, p2p_count: 1978, ndt_count: 137}
+I1112 15:20:33.995504  9524 factor_graph.cc:117] FactorGraph optimization done. Iterations: 1, final cost: 3.52746e-30
+I1112 15:20:34.544782  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 6681, down_pts_size: 2089, success_pts_size: 2089, p2p_count: 1942, ndt_count: 147}
+I1112 15:20:36.762344  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8298, down_pts_size: 2684, success_pts_size: 2684, p2p_count: 2545, ndt_count: 139}
+I1112 15:20:38.972282  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9657, down_pts_size: 2617, success_pts_size: 2615, p2p_count: 2509, ndt_count: 106}
+I1112 15:20:41.173652  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8702, down_pts_size: 2954, success_pts_size: 2948, p2p_count: 2816, ndt_count: 132}
+I1112 15:20:43.382169  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8901, down_pts_size: 2681, success_pts_size: 2681, p2p_count: 2465, ndt_count: 216}
+I1112 15:20:45.587915  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8477, down_pts_size: 2485, success_pts_size: 2485, p2p_count: 2343, ndt_count: 142}
+I1112 15:20:47.808328  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8812, down_pts_size: 2590, success_pts_size: 2536, p2p_count: 2278, ndt_count: 258}
+I1112 15:20:49.024705  9524 factor_graph.cc:117] FactorGraph optimization done. Iterations: 1, final cost: 2.72295e-25
+I1112 15:20:49.024753  9523 loop_closure.cc:126] Verifying candidate number: 1
+I1112 15:20:49.038929  9523 loop_closure.cc:226] LoopClosure verify [0, 2] id_gap=2 result1_converged=1 result1_error=256.737 result1_num_inliers=13270 result1_source_inlier_ratio=0.95162 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=1
+I1112 15:20:49.127795  9524 factor_graph.cc:65] Adding loop closure edge between 0 and 2
+I1112 15:20:49.128140  9524 factor_graph.cc:117] FactorGraph optimization done. Iterations: 2, final cost: 1.26908e-06
+I1112 15:20:50.010383  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8509, down_pts_size: 2485, success_pts_size: 2485, p2p_count: 2103, ndt_count: 382}
+I1112 15:20:52.232118  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8363, down_pts_size: 2440, success_pts_size: 2440, p2p_count: 1986, ndt_count: 454}
+I1112 15:20:54.445055  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8445, down_pts_size: 2389, success_pts_size: 2389, p2p_count: 2000, ndt_count: 389}
+I1112 15:20:56.675341  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8480, down_pts_size: 2511, success_pts_size: 2511, p2p_count: 2085, ndt_count: 426}
+I1112 15:20:58.903229  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8421, down_pts_size: 2518, success_pts_size: 2518, p2p_count: 2073, ndt_count: 445}
+I1112 15:21:01.120782  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8136, down_pts_size: 2327, success_pts_size: 2327, p2p_count: 1926, ndt_count: 401}
+I1112 15:21:03.356192  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 7928, down_pts_size: 2406, success_pts_size: 2406, p2p_count: 1954, ndt_count: 452}
+I1112 15:21:05.579239  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 7955, down_pts_size: 2315, success_pts_size: 2315, p2p_count: 1892, ndt_count: 423}
+I1112 15:21:07.806746  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 7705, down_pts_size: 2346, success_pts_size: 2346, p2p_count: 1906, ndt_count: 440}
+I1112 15:21:10.025122  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 7503, down_pts_size: 2311, success_pts_size: 2311, p2p_count: 1842, ndt_count: 469}
+I1112 15:21:12.253877  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 7064, down_pts_size: 2240, success_pts_size: 2240, p2p_count: 1800, ndt_count: 440}
+I1112 15:21:14.499521  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 6856, down_pts_size: 2230, success_pts_size: 2230, p2p_count: 1747, ndt_count: 483}
+I1112 15:21:16.730139  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 7225, down_pts_size: 2228, success_pts_size: 2228, p2p_count: 1753, ndt_count: 475}
+I1112 15:21:18.970932  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 7641, down_pts_size: 2368, success_pts_size: 2368, p2p_count: 1907, ndt_count: 461}
+I1112 15:21:21.205077  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 7563, down_pts_size: 2372, success_pts_size: 2372, p2p_count: 1905, ndt_count: 467}
+I1112 15:21:23.426687  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 7471, down_pts_size: 2524, success_pts_size: 2524, p2p_count: 2105, ndt_count: 419}
+I1112 15:21:25.654922  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 7279, down_pts_size: 2432, success_pts_size: 2432, p2p_count: 2049, ndt_count: 383}
+I1112 15:21:27.884730  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 7274, down_pts_size: 2423, success_pts_size: 2423, p2p_count: 2041, ndt_count: 382}
+I1112 15:21:30.108697  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 7262, down_pts_size: 2423, success_pts_size: 2423, p2p_count: 2039, ndt_count: 384}
+I1112 15:21:32.323562  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8907, down_pts_size: 2519, success_pts_size: 2519, p2p_count: 2184, ndt_count: 335}
+I1112 15:21:34.555665  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8911, down_pts_size: 2517, success_pts_size: 2517, p2p_count: 2141, ndt_count: 376}
+I1112 15:21:36.777755  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 7693, down_pts_size: 2755, success_pts_size: 2754, p2p_count: 2477, ndt_count: 277}
+I1112 15:21:38.442883  9524 factor_graph.cc:117] FactorGraph optimization done. Iterations: 2, final cost: 1.27387e-06
+I1112 15:21:38.442936  9523 loop_closure.cc:126] Verifying candidate number: 2
+I1112 15:21:38.452073  9523 loop_closure.cc:226] LoopClosure verify [0, 3] id_gap=3 result1_converged=1 result1_error=1964.11 result1_num_inliers=9960 result1_source_inlier_ratio=0.951205 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=1
+I1112 15:21:38.460207  9523 loop_closure.cc:226] LoopClosure verify [1, 3] id_gap=2 result1_converged=1 result1_error=2340.65 result1_num_inliers=7362 result1_source_inlier_ratio=0.566767 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:21:38.552169  9524 factor_graph.cc:65] Adding loop closure edge between 0 and 3
+I1112 15:21:38.552563  9524 factor_graph.cc:117] FactorGraph optimization done. Iterations: 2, final cost: 2.85007e-05
+I1112 15:21:38.987486  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8174, down_pts_size: 2808, success_pts_size: 2808, p2p_count: 2733, ndt_count: 75}
+I1112 15:21:41.195381  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9595, down_pts_size: 2900, success_pts_size: 2900, p2p_count: 2820, ndt_count: 80}
+I1112 15:21:43.420653  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9940, down_pts_size: 3153, success_pts_size: 3153, p2p_count: 3070, ndt_count: 83}
+I1112 15:21:45.638429  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9895, down_pts_size: 3305, success_pts_size: 3305, p2p_count: 3194, ndt_count: 111}
+I1112 15:21:47.864805  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9850, down_pts_size: 3095, success_pts_size: 3095, p2p_count: 2996, ndt_count: 99}
+I1112 15:21:50.073092  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9842, down_pts_size: 2739, success_pts_size: 2721, p2p_count: 2672, ndt_count: 49}
+I1112 15:21:52.177802  9524 factor_graph.cc:117] FactorGraph optimization done. Iterations: 2, final cost: 2.86243e-05
+I1112 15:21:52.177850  9523 loop_closure.cc:126] Verifying candidate number: 3
+I1112 15:21:52.195807  9523 loop_closure.cc:226] LoopClosure verify [2, 4] id_gap=2 result1_converged=1 result1_error=12575.5 result1_num_inliers=8536 result1_source_inlier_ratio=0.567084 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:21:52.206295  9523 loop_closure.cc:226] LoopClosure verify [0, 4] id_gap=4 result1_converged=1 result1_error=852.543 result1_num_inliers=10438 result1_source_inlier_ratio=0.837337 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=1
+I1112 15:21:52.214098  9523 loop_closure.cc:226] LoopClosure verify [1, 4] id_gap=3 result1_converged=1 result1_error=1469.54 result1_num_inliers=10263 result1_source_inlier_ratio=0.860718 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=1
+I1112 15:21:52.287792  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10234, down_pts_size: 2768, success_pts_size: 2756, p2p_count: 2665, ndt_count: 91}
+I1112 15:21:52.287827  9524 factor_graph.cc:65] Adding loop closure edge between 0 and 4
+I1112 15:21:52.287842  9524 factor_graph.cc:65] Adding loop closure edge between 1 and 4
+I1112 15:21:52.288189  9524 factor_graph.cc:117] FactorGraph optimization done. Iterations: 2, final cost: 9.07884e-05
+I1112 15:21:54.506280  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10752, down_pts_size: 2504, success_pts_size: 2357, p2p_count: 2253, ndt_count: 104}
+I1112 15:21:56.728363  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10221, down_pts_size: 2652, success_pts_size: 2642, p2p_count: 2474, ndt_count: 168}
+I1112 15:21:58.939793  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9712, down_pts_size: 2907, success_pts_size: 2898, p2p_count: 2638, ndt_count: 260}
+I1112 15:22:01.148162  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10002, down_pts_size: 2763, success_pts_size: 2733, p2p_count: 2564, ndt_count: 169}
+I1112 15:22:03.354519  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10843, down_pts_size: 2548, success_pts_size: 2541, p2p_count: 2348, ndt_count: 193}
+I1112 15:22:05.556257  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9484, down_pts_size: 3231, success_pts_size: 3211, p2p_count: 2824, ndt_count: 387}
+I1112 15:22:07.768200  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9212, down_pts_size: 3329, success_pts_size: 3329, p2p_count: 3018, ndt_count: 311}
+I1112 15:22:07.772200  9524 factor_graph.cc:117] FactorGraph optimization done. Iterations: 2, final cost: 9.10156e-05
+I1112 15:22:07.772250  9523 loop_closure.cc:126] Verifying candidate number: 4
+I1112 15:22:07.791231  9523 loop_closure.cc:226] LoopClosure verify [0, 5] id_gap=5 result1_converged=1 result1_error=10367.9 result1_num_inliers=8198 result1_source_inlier_ratio=0.225712 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:22:07.808683  9523 loop_closure.cc:226] LoopClosure verify [1, 5] id_gap=4 result1_converged=1 result1_error=4405.84 result1_num_inliers=5302 result1_source_inlier_ratio=0.179802 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:22:07.824928  9523 loop_closure.cc:226] LoopClosure verify [3, 5] id_gap=2 result1_converged=1 result1_error=8398.4 result1_num_inliers=8459 result1_source_inlier_ratio=0.219469 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:22:07.907774  9523 loop_closure.cc:226] LoopClosure verify [2, 5] id_gap=3 result1_converged=0 result1_error=10464.3 result1_num_inliers=7604 result1_source_inlier_ratio=0.133828 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:22:09.968175  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9083, down_pts_size: 3069, success_pts_size: 3069, p2p_count: 2824, ndt_count: 245}
+I1112 15:22:12.154548  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9029, down_pts_size: 3120, success_pts_size: 3120, p2p_count: 2839, ndt_count: 281}
+I1112 15:22:14.353330  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9337, down_pts_size: 3166, success_pts_size: 3166, p2p_count: 2835, ndt_count: 331}
+I1112 15:22:16.552207  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9820, down_pts_size: 3110, success_pts_size: 3110, p2p_count: 2765, ndt_count: 345}
+I1112 15:22:18.740512  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9805, down_pts_size: 3091, success_pts_size: 3091, p2p_count: 2935, ndt_count: 156}
+I1112 15:22:20.949014  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9777, down_pts_size: 3165, success_pts_size: 3165, p2p_count: 3139, ndt_count: 26}
+I1112 15:22:23.137140  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10040, down_pts_size: 3241, success_pts_size: 3241, p2p_count: 3222, ndt_count: 19}
+I1112 15:22:25.224768  9524 factor_graph.cc:117] FactorGraph optimization done. Iterations: 2, final cost: 9.10189e-05
+I1112 15:22:25.224846  9523 loop_closure.cc:126] Verifying candidate number: 5
+I1112 15:22:25.244300  9523 loop_closure.cc:226] LoopClosure verify [0, 6] id_gap=6 result1_converged=1 result1_error=1773.7 result1_num_inliers=3430 result1_source_inlier_ratio=0.112841 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:22:25.291555  9523 loop_closure.cc:226] LoopClosure verify [1, 6] id_gap=5 result1_converged=0 result1_error=1883.99 result1_num_inliers=3974 result1_source_inlier_ratio=0.117994 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:22:25.308017  9523 loop_closure.cc:226] LoopClosure verify [2, 6] id_gap=4 result1_converged=1 result1_error=2449.27 result1_num_inliers=3622 result1_source_inlier_ratio=0.107473 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:22:25.322362  9523 loop_closure.cc:226] LoopClosure verify [3, 6] id_gap=3 result1_converged=1 result1_error=2136.66 result1_num_inliers=3901 result1_source_inlier_ratio=0.137535 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:22:25.332078  9523 loop_closure.cc:226] LoopClosure verify [4, 6] id_gap=2 result1_converged=1 result1_error=3806.99 result1_num_inliers=6688 result1_source_inlier_ratio=0.368585 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:22:25.358707  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9989, down_pts_size: 2698, success_pts_size: 2697, p2p_count: 2467, ndt_count: 230}
+I1112 15:22:27.573063  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9988, down_pts_size: 2508, success_pts_size: 2502, p2p_count: 2014, ndt_count: 488}
+I1112 15:22:29.796516  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9916, down_pts_size: 2659, success_pts_size: 2659, p2p_count: 2083, ndt_count: 576}
+I1112 15:22:32.016885  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9939, down_pts_size: 2499, success_pts_size: 2499, p2p_count: 2064, ndt_count: 435}
+I1112 15:22:34.238567  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10011, down_pts_size: 2412, success_pts_size: 2412, p2p_count: 1983, ndt_count: 429}
+I1112 15:22:36.461448  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10108, down_pts_size: 2588, success_pts_size: 2588, p2p_count: 2176, ndt_count: 412}
+I1112 15:22:38.686410  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10300, down_pts_size: 2464, success_pts_size: 2464, p2p_count: 2100, ndt_count: 364}
+I1112 15:22:40.912292  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10507, down_pts_size: 2191, success_pts_size: 2190, p2p_count: 1875, ndt_count: 315}
+I1112 15:22:43.136998  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9985, down_pts_size: 2339, success_pts_size: 2339, p2p_count: 1891, ndt_count: 448}
+I1112 15:22:45.364429  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10008, down_pts_size: 2889, success_pts_size: 2889, p2p_count: 2553, ndt_count: 336}
+I1112 15:22:45.808246  9524 factor_graph.cc:117] FactorGraph optimization done. Iterations: 2, final cost: 9.1019e-05
+I1112 15:22:45.808295  9523 loop_closure.cc:126] Verifying candidate number: 2
+I1112 15:22:45.820073  9523 loop_closure.cc:226] LoopClosure verify [5, 7] id_gap=2 result1_converged=1 result1_error=1609.78 result1_num_inliers=11640 result1_source_inlier_ratio=0.964112 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=1
+I1112 15:22:45.844403  9523 loop_closure.cc:226] LoopClosure verify [2, 7] id_gap=5 result1_converged=1 result1_error=6858.62 result1_num_inliers=5970 result1_source_inlier_ratio=0.177134 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:22:45.921402  9524 factor_graph.cc:65] Adding loop closure edge between 5 and 7
+I1112 15:22:45.921900  9524 factor_graph.cc:117] FactorGraph optimization done. Iterations: 2, final cost: 0.000369941
+I1112 15:22:47.588020  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10010, down_pts_size: 2805, success_pts_size: 2805, p2p_count: 2362, ndt_count: 443}
+I1112 15:22:49.807781  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9987, down_pts_size: 2919, success_pts_size: 2919, p2p_count: 2181, ndt_count: 738}
+I1112 15:22:52.042938  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10191, down_pts_size: 2841, success_pts_size: 2841, p2p_count: 2347, ndt_count: 494}
+I1112 15:22:54.261916  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9737, down_pts_size: 3026, success_pts_size: 3026, p2p_count: 2135, ndt_count: 891}
+I1112 15:22:56.471698  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9433, down_pts_size: 2505, success_pts_size: 2505, p2p_count: 1851, ndt_count: 654}
+I1112 15:22:58.683090  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10457, down_pts_size: 2311, success_pts_size: 2311, p2p_count: 1939, ndt_count: 372}
+I1112 15:23:00.885452  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10021, down_pts_size: 2614, success_pts_size: 2597, p2p_count: 1987, ndt_count: 610}
+I1112 15:23:01.768759  9524 factor_graph.cc:117] FactorGraph optimization done. Iterations: 2, final cost: 0.000373052
+I1112 15:23:01.768815  9523 loop_closure.cc:126] Verifying candidate number: 7
+I1112 15:23:01.782217  9523 loop_closure.cc:226] LoopClosure verify [0, 8] id_gap=8 result1_converged=1 result1_error=11488.5 result1_num_inliers=10608 result1_source_inlier_ratio=0.36736 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:01.799400  9523 loop_closure.cc:226] LoopClosure verify [1, 8] id_gap=7 result1_converged=1 result1_error=5353.06 result1_num_inliers=8057 result1_source_inlier_ratio=0.295443 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:01.814366  9523 loop_closure.cc:226] LoopClosure verify [4, 8] id_gap=4 result1_converged=1 result1_error=5761.54 result1_num_inliers=12279 result1_source_inlier_ratio=0.554268 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:01.828689  9523 loop_closure.cc:226] LoopClosure verify [5, 8] id_gap=3 result1_converged=1 result1_error=7489.03 result1_num_inliers=13764 result1_source_inlier_ratio=0.845232 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=1
+I1112 15:23:01.839761  9523 loop_closure.cc:226] LoopClosure verify [6, 8] id_gap=2 result1_converged=1 result1_error=7799.82 result1_num_inliers=11803 result1_source_inlier_ratio=0.49921 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:01.861883  9523 loop_closure.cc:226] LoopClosure verify [2, 8] id_gap=6 result1_converged=1 result1_error=30966.4 result1_num_inliers=10147 result1_source_inlier_ratio=0.306639 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:01.876852  9523 loop_closure.cc:226] LoopClosure verify [3, 8] id_gap=5 result1_converged=1 result1_error=6653.48 result1_num_inliers=11121 result1_source_inlier_ratio=0.35656 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:01.893347  9524 factor_graph.cc:65] Adding loop closure edge between 5 and 8
+I1112 15:23:01.894011  9524 factor_graph.cc:117] FactorGraph optimization done. Iterations: 2, final cost: 0.000377868
+I1112 15:23:03.098730  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10533, down_pts_size: 2685, success_pts_size: 2685, p2p_count: 1629, ndt_count: 1056}
+I1112 15:23:05.292625  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10807, down_pts_size: 2708, success_pts_size: 2708, p2p_count: 1531, ndt_count: 1177}
+I1112 15:23:07.484643  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9651, down_pts_size: 2945, success_pts_size: 2945, p2p_count: 2027, ndt_count: 918}
+I1112 15:23:09.684594  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 7996, down_pts_size: 2466, success_pts_size: 2465, p2p_count: 2208, ndt_count: 257}
+I1112 15:23:11.901075  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8249, down_pts_size: 2634, success_pts_size: 2634, p2p_count: 2568, ndt_count: 66}
+I1112 15:23:14.116112  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9882, down_pts_size: 2919, success_pts_size: 2919, p2p_count: 2534, ndt_count: 385}
+I1112 15:23:16.305228  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10346, down_pts_size: 3150, success_pts_size: 3150, p2p_count: 2231, ndt_count: 919}
+I1112 15:23:17.291689  9524 factor_graph.cc:117] FactorGraph optimization done. Iterations: 2, final cost: 0.000378084
+I1112 15:23:17.291764  9523 loop_closure.cc:126] Verifying candidate number: 8
+I1112 15:23:17.325475  9523 loop_closure.cc:226] LoopClosure verify [1, 9] id_gap=8 result1_converged=0 result1_error=1846.91 result1_num_inliers=4912 result1_source_inlier_ratio=0.328626 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:17.343663  9523 loop_closure.cc:226] LoopClosure verify [3, 9] id_gap=6 result1_converged=1 result1_error=3323.31 result1_num_inliers=6010 result1_source_inlier_ratio=0.287337 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:17.363080  9523 loop_closure.cc:226] LoopClosure verify [0, 9] id_gap=9 result1_converged=0 result1_error=2992.22 result1_num_inliers=5222 result1_source_inlier_ratio=0.212586 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:17.387315  9523 loop_closure.cc:226] LoopClosure verify [7, 9] id_gap=2 result1_converged=1 result1_error=1914.3 result1_num_inliers=5259 result1_source_inlier_ratio=0.528166 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:17.406437  9523 loop_closure.cc:226] LoopClosure verify [6, 9] id_gap=3 result1_converged=1 result1_error=3050.31 result1_num_inliers=3615 result1_source_inlier_ratio=0.193246 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:17.413240  9523 loop_closure.cc:226] LoopClosure verify [5, 9] id_gap=4 result1_converged=1 result1_error=2744.51 result1_num_inliers=6515 result1_source_inlier_ratio=0.978511 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=1
+I1112 15:23:17.434441  9523 loop_closure.cc:226] LoopClosure verify [2, 9] id_gap=7 result1_converged=0 result1_error=4200.08 result1_num_inliers=5672 result1_source_inlier_ratio=0.236531 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:17.470690  9523 loop_closure.cc:226] LoopClosure verify [4, 9] id_gap=5 result1_converged=0 result1_error=3963.56 result1_num_inliers=4943 result1_source_inlier_ratio=0.345664 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:17.537681  9524 factor_graph.cc:65] Adding loop closure edge between 5 and 9
+I1112 15:23:17.538669  9524 factor_graph.cc:117] FactorGraph optimization done. Iterations: 3, final cost: 0.00242891
+I1112 15:23:18.525336  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10828, down_pts_size: 3201, success_pts_size: 3201, p2p_count: 2010, ndt_count: 1191}
+I1112 15:23:20.724190  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10842, down_pts_size: 3393, success_pts_size: 3393, p2p_count: 2131, ndt_count: 1262}
+I1112 15:23:22.916705  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10839, down_pts_size: 3401, success_pts_size: 3401, p2p_count: 2143, ndt_count: 1258}
+I1112 15:23:25.115778  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10842, down_pts_size: 3403, success_pts_size: 3403, p2p_count: 2148, ndt_count: 1255}
+I1112 15:23:27.321287  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10848, down_pts_size: 3397, success_pts_size: 3397, p2p_count: 2135, ndt_count: 1262}
+I1112 15:23:29.530534  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10846, down_pts_size: 3400, success_pts_size: 3400, p2p_count: 2134, ndt_count: 1266}
+I1112 15:23:31.729617  9453 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10839, down_pts_size: 3402, success_pts_size: 3402, p2p_count: 2137, ndt_count: 1265}
+I1112 15:23:32.257045  9453 ros_interface.cc:192] Lidar thread stopped
+I1112 15:23:32.258553  9453 ros_interface.cc:196] IMU thread stopped
+I1112 15:23:32.291138  9524 factor_graph.cc:117] FactorGraph optimization done. Iterations: 2, final cost: 0.0024359
+I1112 15:23:32.292486  9523 loop_closure.cc:126] Verifying candidate number: 8
+I1112 15:23:32.338296  9523 loop_closure.cc:226] LoopClosure verify [3, 10] id_gap=7 result1_converged=1 result1_error=1001.47 result1_num_inliers=2029 result1_source_inlier_ratio=0.252285 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:32.409174  9523 loop_closure.cc:226] LoopClosure verify [4, 10] id_gap=6 result1_converged=0 result1_error=6615.49 result1_num_inliers=2188 result1_source_inlier_ratio=0.74223 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:32.434373  9523 loop_closure.cc:226] LoopClosure verify [7, 10] id_gap=3 result1_converged=0 result1_error=387.831 result1_num_inliers=2188 result1_source_inlier_ratio=0.808958 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:32.443017  9523 loop_closure.cc:226] LoopClosure verify [8, 10] id_gap=2 result1_converged=1 result1_error=264.723 result1_num_inliers=2188 result1_source_inlier_ratio=0.880256 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=1
+I1112 15:23:32.461899  9523 loop_closure.cc:226] LoopClosure verify [6, 10] id_gap=4 result1_converged=0 result1_error=402.055 result1_num_inliers=1369 result1_source_inlier_ratio=0.371115 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:32.469033  9523 loop_closure.cc:226] LoopClosure verify [5, 10] id_gap=5 result1_converged=1 result1_error=633.768 result1_num_inliers=2188 result1_source_inlier_ratio=0.994973 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=1
+I1112 15:23:32.480063  9523 loop_closure.cc:226] LoopClosure verify [2, 10] id_gap=8 result1_converged=0 result1_error=808.033 result1_num_inliers=1924 result1_source_inlier_ratio=0.313071 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=0
+I1112 15:23:32.487612  9523 loop_closure.cc:226] LoopClosure verify [1, 10] id_gap=9 result1_converged=1 result1_error=3620.46 result1_num_inliers=2188 result1_source_inlier_ratio=0.747715 kiss_checked=0 kiss_passed=0 kiss_final_inliers=0 result2_converged=0 result2_error=0 result2_num_inliers=0 result2_source_inlier_ratio=0 selected=result1 min_source_inlier_ratio=0.7 verified=1
+I1112 15:23:32.487699  9453 ros_interface.cc:216] Backend stopped
+I1112 15:23:32.487707  9453 ros_interface.cc:46] Ros2 Interface is being Destructed
+I1112 15:23:32.487744  9453 backend.cc:42] Backend is destroyed
+I1112 15:23:32.487757  9453 factor_graph.cc:41] FactorGraph is destructed
+I1112 15:23:32.488505  9453 lidar_processing.cc:11] Lidar Processing is Destructed
+I1112 15:23:32.490566  9453 yaml_helper.hpp:80] YAML Key: auto_save_root = /home/an/go2_v4/runs/20261112_151920_nav/kilo
+I1112 15:23:32.490588  9453 yaml_helper.hpp:80] YAML Key: temp_result_save_folder = go2_sim_run
+I1112 15:23:32.490674  9453 leg_kilo_node_ros2.cc:103] Auto save: /home/an/go2_v4/src/legkilo/result/go2_sim_run/ -> /home/an/go2_v4/runs/20261112_151920_nav/kilo/kilo_20261112_152332
+I1112 15:23:32.490692  9453 yaml_helper.hpp:80] YAML Key: auto_save_voxel = 0.05
+I1112 15:23:32.490710  9453 headless_save.hpp:17] [save] Preparing output folder
+I1112 15:23:32.490850  9453 headless_save.hpp:17] [save] Loading runtime records
+I1112 15:23:32.494627  9453 yaml_helper.hpp:64] YAML Key:  extrinsic_T = [0.2954, 0, 0.097]
+I1112 15:23:32.494666  9453 yaml_helper.hpp:64] YAML Key:  extrinsic_R = [-0.506184, -0.028895, 0.861941, 0, -0.999439, -0.033504, 0.862425, -0.016959, 0.5059]
+I1112 15:23:32.501565  9453 headless_save.hpp:17] [save] Saving trajectories
+I1112 15:23:32.513832  9453 headless_save.hpp:17] [save] Saving global map
+I1112 15:23:32.548020  9453 headless_save.hpp:17] [save] Saving SLAM runtime results
+I1112 15:23:32.548034  9453 headless_save.hpp:17] [save] Writing documents
+I1112 15:23:32.548105  9453 leg_kilo_node_ros2.cc:105] Auto save done: /home/an/go2_v4/runs/20261112_151920_nav/kilo/kilo_20261112_152332
+I1112 15:23:32.548197  9453 leg_kilo_node_ros2.cc:109] RosInterface destroyed
+I1112 15:23:32.548202  9453 leg_kilo_node_ros2.cc:110] Leg KILO Node Ends
+I1112 15:23:32.548206  9453 timer_utils.hpp:66] ===== Every Component Average Time =====
+I1112 15:23:32.548210  9453 timer_utils.hpp:70] Lidar Processing average time : 0.252349 ms
+I1112 15:23:32.548214  9453 timer_utils.hpp:70] Downsampling average time : 0.272437 ms
+I1112 15:23:32.548219  9453 timer_utils.hpp:70] State predict/update - 1st average time : 1.87811 ms
+I1112 15:23:32.548223  9453 timer_utils.hpp:70] Backpropagate average time : 0.103808 ms
+I1112 15:23:32.548228  9453 timer_utils.hpp:70] State predict/update - 2nd average time : 1.07104 ms
+I1112 15:23:32.548231  9453 timer_utils.hpp:70] Voxel map update average time : 0.252773 ms
+I1112 15:23:32.548235  9453 timer_utils.hpp:70] FactorGraph Optimize:  average time : 0.38899 ms
+I1112 15:23:32.548239  9453 timer_utils.hpp:70] SLAM Result Recorder:  average time : 0.00438635 ms
+I1112 15:23:32.548242  9453 timer_utils.hpp:70] LoopClosure::verify average time : 20.7191 ms
+I1112 15:23:32.548247  9453 timer_utils.hpp:72] ======================================

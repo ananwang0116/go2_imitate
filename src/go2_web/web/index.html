@@ -1,0 +1,1460 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Go2 v4 仿真 · GO2 测绘巡航台</title>
+<style>
+:root{
+  --paper:#f3efe6; --canvas:#e6e0d0; --paper2:#ebe6da; --card:#fbf9f4; --ink:#1c2230; --ink2:#4a5263; --mute:#8a8f9a;
+  --line:#d9d3c4; --line2:#c8c1ae;
+  --red:#e2461f; --red-d:#b8340f; --teal:#0f7a6d; --teal-l:#d3ebe6; --amber:#c98a0a; --amber-l:#f6e7bd; --blue:#2c5fa8;
+  --dark:#141a26; --r:10px;
+  --sans:"IBM Plex Sans","Noto Sans CJK SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:ui-monospace,"JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--paper);color:var(--ink);font:14px/1.5 var(--sans);display:flex;flex-direction:column;overflow:hidden}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer}
+[hidden]{display:none!important}
+kbd{font:11px var(--mono);background:var(--paper2);border:1px solid var(--line2);border-bottom-width:2px;border-radius:4px;padding:0 5px;margin-left:4px}
+
+/* top bar */
+.top{display:flex;align-items:center;flex-wrap:wrap;gap:12px;min-height:54px;padding:7px 18px;background:var(--ink);color:#f3efe6;flex:none}
+.brand{display:flex;align-items:baseline;gap:8px;flex-shrink:0}
+.brand .mark{width:12px;height:12px;background:var(--red);border-radius:3px;transform:translateY(1px) rotate(45deg);align-self:center}
+.brand b{font:700 17px var(--mono);letter-spacing:.14em}
+.brand i{font-style:normal;color:#b9b4a5;font-size:13px;letter-spacing:.2em}
+.grow{flex:1}
+.seg{display:inline-flex;flex-shrink:0;background:#2b3345;border-radius:9px;padding:3px;gap:2px}
+.seg button{border:0;background:none;color:#b9b4a5;padding:6px 16px;border-radius:7px;font-weight:600;display:flex;align-items:center;gap:8px}
+.seg button em{font:600 11px var(--mono);font-style:normal;background:#3a4258;border-radius:5px;padding:0 6px}
+.seg button.on{background:var(--paper);color:var(--ink)}
+.seg button.on em{background:var(--red);color:#fff}
+.seg button.warn em{background:var(--amber);color:#fff}
+.seg.small{background:var(--paper2);margin-bottom:0;display:flex;flex-wrap:wrap}
+.seg.small button{color:var(--ink2);padding:5px 12px;font-weight:500}
+.seg.small button.on{background:var(--ink);color:#fff}
+.seg.inl{margin-bottom:8px}
+.chip{display:flex;align-items:center;white-space:nowrap;gap:8px;font-size:12px;color:#d9d4c6;background:#2b3345;border-radius:20px;padding:4px 12px;border:0}
+.chip b{font-weight:600}
+.dot{width:9px;height:9px;border-radius:50%;background:#777;display:inline-block}
+.chip.ok .dot{background:#3ed19b;box-shadow:0 0 0 3px rgba(62,209,155,.2)}
+.chip.warn .dot{background:var(--amber)}
+.chip.bad .dot{background:var(--red);animation:pulse 1s infinite}
+.chip.btnlike{cursor:pointer}.chip.btnlike:hover{background:#3a4258}
+.mini{width:46px;height:5px;background:#3a4258;border-radius:3px;overflow:hidden;position:relative}
+.mini i{position:absolute;left:0;top:0;bottom:0;background:#3ed19b;width:0;transition:width .4s}
+@keyframes pulse{50%{opacity:.35}}
+.estop{flex-shrink:0;white-space:nowrap;background:var(--red);border:0;color:#fff;font-weight:800;letter-spacing:.3em;padding:8px 18px 8px 22px;border-radius:8px;box-shadow:0 2px 0 var(--red-d)}
+.estop:hover{background:#f0522a}.estop:active{transform:translateY(2px);box-shadow:none}
+.estop.hit{background:#7a1d05;box-shadow:none}
+
+/* Independent navigation workspace entry: explicit colours on the dark header. */
+.realtime-entry{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex-shrink:0;min-height:38px;margin-left:20px;padding:7px 13px;border:1px solid #22d3ee;border-radius:8px;background:#a5f3fc;color:#083344;text-decoration:none;white-space:nowrap;font-weight:700;line-height:1.3}
+.realtime-entry svg{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.realtime-entry.on{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+.realtime-entry:hover{background:#cffafe;color:#083344;border-color:#67e8f9}
+.realtime-entry:focus-visible{outline:3px solid #fff;outline-offset:3px}
+
+#rtMapInfo .mono{overflow-wrap:anywhere}
+/* layout */
+main{flex:1;display:grid;grid-template-columns:auto 1fr 400px;min-height:0}
+.maps{overflow-y:auto;width:218px;border-right:1px solid var(--line2);background:var(--paper2);display:flex;flex-direction:column;transition:width .2s;overflow-x:hidden;overflow-y:auto}
+.maps.fold{width:44px}
+.maps.realtime-info:not(.fold){width:280px}
+.maps .mh{display:flex;align-items:center;gap:8px;padding:12px 12px 8px;font-weight:700;font-size:13px;white-space:nowrap}
+.maps .mh button{margin-left:auto}
+.maps.fold #rtMapInfo,.maps.fold .mh span,.maps.fold .mlist,.maps.fold .newscene{display:none}
+.maps.fold .mh button{margin:0}
+.mlist{list-style:none;margin:0;padding:0 10px;overflow-y:auto;flex:1}
+.mlist li{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;margin-bottom:3px;font-size:13px;border:1px solid transparent}
+.mlist li:hover{background:var(--card)}
+.mlist li.on{background:var(--card);border-color:var(--line2);font-weight:600;box-shadow:0 1px 0 var(--line2)}
+.mlist li .dot{background:var(--line2);flex:none}
+.mlist li.on .dot{background:var(--teal)}
+.mlist li .tag{margin-left:auto;font:10px var(--mono);color:var(--mute);border:1px solid var(--line2);border-radius:4px;padding:0 4px}
+.mlist li .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.newscene{margin:8px 10px 12px}
+
+.stage{position:relative;min-width:0;background:var(--paper);transition:background .3s}
+.stage.dark{background:var(--dark)}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:none;touch-action:none}
+.stage.gl3d #gl{display:block}
+.hud.tl .glbtn{display:inline-flex;gap:2px;margin-left:8px;background:var(--ink);border-radius:9px;padding:3px}
+.hud.tl .glbtn button{border:0;background:none;color:#b9b4a5;padding:4px 10px;border-radius:7px;font-size:13px}
+.hud.tl .glbtn button.on{background:#4a79c4;color:#fff}
+.cam{position:absolute;inset:0;background:#0d1118;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cam .scene{position:absolute;inset:0}
+.cam .tagc{position:absolute;right:16px;top:14px;font:12px var(--mono);color:#cfd5e0;background:rgba(0,0,0,.45);padding:3px 10px;border-radius:6px;display:flex;gap:8px;align-items:center}
+.cam .noise{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px)}
+.cam .note2{position:relative;color:#8a93a6;font-size:13px;text-align:center}
+.hud{position:absolute;z-index:2}
+.hud.tl{left:14px;top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.hud.bl{left:14px;bottom:12px;font-size:12px;color:var(--ink2);background:rgba(251,249,244,.85);padding:3px 9px;border-radius:6px;border:1px solid var(--line)}
+.dark .hud.bl{background:rgba(20,26,38,.8);color:#a9b2c4;border-color:#2b3345}
+.hud.bc{left:50%;bottom:16px;transform:translateX(-50%)}
+.hud.br{right:14px;bottom:14px;display:flex;flex-direction:column;gap:6px}
+.sq{width:36px;height:36px;border-radius:8px;border:1px solid var(--line2);background:var(--card);font-size:18px;line-height:1;box-shadow:0 1px 0 var(--line2)}
+.sq:hover{border-color:var(--ink)} .sq.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.viewseg{display:inline-flex;background:var(--ink);border-radius:12px;padding:4px;gap:2px;box-shadow:0 4px 14px rgba(28,34,48,.3)}
+.viewseg button{border:0;background:none;color:#b9b4a5;padding:7px 18px;border-radius:9px;font-weight:600;display:flex;align-items:center;gap:7px}
+.viewseg button.on{background:var(--paper);color:var(--ink)}
+.viewseg button.on::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--teal)}
+.iso{display:inline-flex;background:var(--ink);border-radius:9px;padding:3px;gap:2px}
+.iso button{border:0;background:none;color:#b9b4a5;padding:4px 12px;border-radius:7px;font-size:13px}
+.iso button.on{background:#4a79c4;color:#fff}
+.tool{display:flex;align-items:center;gap:10px;background:var(--ink);color:#fff;padding:7px 8px 7px 14px;border-radius:9px;font-size:13px;box-shadow:0 4px 14px rgba(28,34,48,.25)}
+.tool button{border:0;background:#3a4258;color:#fff;border-radius:6px;padding:3px 10px}
+.banner{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:3;background:var(--amber-l);color:#6b4a00;border:1px solid var(--amber);padding:8px 16px;border-radius:9px;font-weight:600;max-width:70%;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.banner.bad{background:#fbe0d8;border-color:var(--red);color:#7a1d05}
+
+/* side panel */
+.side{border-left:1px solid var(--line2);background:var(--paper2);overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.tab{display:flex;flex-direction:column;gap:12px}
+.intro{margin:0;font-size:12.5px;color:var(--ink2);line-height:1.6;padding:2px 4px 0}
+.intro b{color:var(--ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;box-shadow:0 1px 0 var(--line)}
+.card.lock{opacity:.5;pointer-events:none}
+.card h2{margin:0 0 10px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:9px}
+.card h2 .n{width:22px;height:22px;border-radius:6px;background:var(--ink);color:#fff;font:700 12px/22px var(--mono);text-align:center;flex:none}
+.card h2 .n.done{background:var(--teal)}
+.card h2 .count{margin-left:auto;font:600 12px var(--mono);background:var(--teal-l);color:var(--teal);padding:0 8px;border-radius:10px}
+.card h2 .rt{margin-left:auto;font:600 12px var(--mono);color:var(--mute)}
+.row{display:flex;gap:8px;align-items:center;margin:8px 0}
+.row.end{justify-content:flex-end}
+.note{margin:8px 0 0;font-size:12px;color:var(--ink2);line-height:1.55}
+.note.first{margin-top:0;margin-bottom:10px}
+.btn{border:1px solid var(--line2);background:var(--card);border-radius:8px;padding:7px 13px;font-weight:600;box-shadow:0 2px 0 var(--line2);white-space:nowrap}
+.btn:hover:not(:disabled){border-color:var(--ink)} .btn:active:not(:disabled){transform:translateY(2px);box-shadow:none}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:0 2px 0 #000}
+.btn.primary:hover:not(:disabled){background:#2b3345}
+.btn.go{background:var(--teal);color:#fff;border-color:var(--teal);box-shadow:0 2px 0 #0a574d}
+.btn.warn{background:var(--amber);color:#fff;border-color:var(--amber);box-shadow:0 2px 0 #96670a}
+.btn.ghost{background:none;box-shadow:none}
+.btn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn.rec{color:var(--red-d);border-color:var(--red)}
+.btn.rec.live{background:var(--red);color:#fff}
+.btn.danger{color:var(--red-d);border-color:var(--red)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.block{flex:1}
+.btn.sm{padding:3px 10px;box-shadow:none}
+.link{border:0;background:none;color:var(--blue);padding:0;font-size:12px;text-decoration:underline}
+.check{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:var(--ink2)}
+.txt,select{font:inherit;border:1px solid var(--line2);background:#fff;border-radius:8px;padding:7px 10px;min-width:0;flex:1;color:var(--ink)}
+.txt:focus,select:focus{outline:2px solid var(--blue);outline-offset:-1px}
+select{padding:6px 8px;font-size:13px}
+.fld{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px;color:var(--ink2)}
+.fld>span:first-child{width:64px;flex:none}
+.slider{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink2);margin:8px 0}
+.slider span:first-child{width:56px;flex:none}
+.slider input{flex:1;accent-color:var(--ink)}
+.slider b{width:44px;text-align:right;color:var(--ink)}
+.slider small{color:var(--mute);width:34px}
+.alert{display:flex;gap:10px;align-items:center;background:var(--amber-l);border:1px solid var(--amber);color:#6b4a00;border-radius:var(--r);padding:10px 12px;font-size:13px}
+.alert.ok{background:var(--teal-l);border-color:var(--teal);color:#0a574d}
+.alert.bad{background:#fbe0d8;border-color:var(--red);color:#7a1d05}
+.alert .go2{margin-left:auto}
+details.more{margin-top:8px;font-size:13px}
+details.more summary{cursor:pointer;color:var(--ink2);font-size:12px;list-style:none}
+details.more summary::before{content:"▸ ";color:var(--mute)}
+details[open].more summary::before{content:"▾ "}
+details.more .check{display:flex;margin:7px 0}
+
+/* teleop */
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+.k{border:1px solid var(--line2);background:var(--card);border-radius:9px;padding:8px 0 6px;font:700 17px var(--mono);box-shadow:0 2px 0 var(--line2);display:flex;flex-direction:column;align-items:center;line-height:1.1;user-select:none}
+.k small{font:11px var(--sans);color:var(--ink2);font-weight:400;margin-top:3px}
+.k.down,.k:active{background:var(--ink);color:#fff;transform:translateY(2px);box-shadow:none}
+.k.down small,.k:active small{color:#b9b4a5}
+.src{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+.src button{border:1px solid var(--line2);background:var(--card);border-radius:9px;padding:9px 10px;text-align:left;box-shadow:0 2px 0 var(--line2);display:flex;flex-direction:column;gap:1px}
+.src button b{font-size:13px}.src button small{font-size:11px;color:var(--ink2)}
+.src button.on{border-color:var(--ink);background:var(--ink);color:#fff;box-shadow:0 2px 0 #000}
+.src button.on small{color:#b9b4a5}
+.gp{background:var(--paper2);border-radius:9px;padding:10px 12px;font-size:12px;color:var(--ink2)}
+.gp .axes{display:flex;gap:18px;margin-top:8px}
+.gp .stick{width:58px;height:58px;border-radius:50%;border:1.5px solid var(--line2);position:relative;background:#fff}
+.gp .stick i{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--ink);left:21px;top:21px}
+.gp .stick+small{display:block;text-align:center;margin-top:3px;color:var(--mute)}
+
+/* gauge, kv */
+.loc{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.gauge{flex:1;height:14px;background:var(--paper2);border-radius:8px;position:relative;overflow:hidden;border:1px solid var(--line)}
+.gauge i{position:absolute;left:0;top:0;bottom:0;background:var(--teal);width:0;transition:width .6s}
+.gauge u{position:absolute;top:-2px;bottom:-2px;left:60%;width:2px;background:var(--red)}
+.locTxt{display:flex;flex-direction:column;align-items:flex-end;min-width:80px}
+.locTxt b{font-size:16px}.locTxt span{font-size:11px;color:var(--mute)}
+.kv{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.kv:last-child{border:0}
+.kv>span:first-child{color:var(--ink2);display:flex;align-items:center;gap:7px}
+.kv b{font:600 13px var(--mono)}
+.kv small{display:block;color:var(--mute);font-size:11px;font-weight:400}
+.kv .rgt{display:flex;align-items:center;gap:6px}
+.kv .x{border:0;background:none;color:var(--mute);font-size:15px;width:24px;height:24px;border-radius:6px}
+.kv .x:hover{background:#fbe0d8;color:var(--red-d)}
+.sw{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.bar{height:6px;background:var(--paper2);border-radius:4px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--teal);width:0;transition:width .3s}
+.funnel .kv{align-items:flex-start}
+.funnel .kv .v{display:flex;align-items:center;gap:8px;flex:none;margin-top:2px}
+.funnel .kv .bar{width:70px;margin:0}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat div{background:var(--paper2);border-radius:9px;padding:10px 12px}
+.stat small{color:var(--ink2);font-size:12px}
+.stat b{display:block;font:700 22px var(--mono)}
+.stat span{font-size:11px;color:var(--mute)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--ink2);margin:10px 0 4px}
+.chart{width:100%;height:120px;display:block}
+.proc{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.proc:last-child{border:0}
+.proc .nmv{flex:1}.proc .nmv b{display:block;font-size:14px}.proc .nmv small{color:var(--mute);font:11px var(--mono)}
+.tgl{position:relative;width:42px;height:24px;border-radius:14px;background:var(--line2);border:0;transition:background .2s;flex:none}
+.tgl::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s}
+.tgl.on{background:var(--teal)}.tgl.on::after{left:21px}
+
+/* waypoint rows (同 dogweb) */
+.wplist,.rtlist,.edlist{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.wp{display:grid;grid-template-columns:26px 1fr auto;gap:2px 8px;align-items:center;border:1px solid var(--line);border-radius:9px;padding:6px 8px;background:#fff}
+.wp.sel{border-color:var(--teal);box-shadow:0 0 0 2px var(--teal-l)}
+.wp.cur{border-color:var(--amber);box-shadow:0 0 0 2px var(--amber-l)}
+.wp.done{opacity:.55}
+.wp .badge{grid-row:1/3;width:26px;height:26px;border-radius:50%;background:var(--teal);color:#fff;font:700 12px/26px var(--mono);text-align:center;cursor:pointer}
+.wp.cur .badge{background:var(--amber)}
+.wp input.nm{border:0;background:none;font:600 13px var(--sans);padding:2px 4px;border-radius:4px;min-width:0;width:100%}
+.wp input.nm:focus{outline:2px solid var(--blue);background:#fff}
+.wp .xy{font-size:11px;color:var(--mute);padding-left:4px}
+.wp .acts{grid-row:1/3;grid-column:3;display:flex;gap:2px;align-items:center}
+.wp .acts button{border:0;background:none;width:24px;height:24px;border-radius:6px;color:var(--ink2)}
+.wp .acts button:hover:not(:disabled){background:var(--paper2)} .wp .acts .del:hover{background:#fbe0d8;color:var(--red-d)}
+.wp .acts button:disabled{opacity:.25;cursor:default}
+.wp .dw{display:flex;align-items:center;gap:3px;font-size:11px;color:var(--mute);margin-right:4px}
+.wp .dw input{width:38px;border:1px solid var(--line);border-radius:5px;font:12px var(--mono);padding:1px 3px;text-align:right}
+.wp.rt{grid-template-columns:1fr auto}
+.wp.rt .info{display:flex;flex-direction:column;cursor:pointer}
+.wp.rt .info b{font-size:13px}
+.wp.rt .info span{font-size:11px;color:var(--mute)}
+.wp.rt .acts{grid-row:auto;grid-column:2}
+.ed{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;padding:6px 10px;background:#fff;font-size:13px}
+.ed .xy{margin-left:auto;font:11px var(--mono);color:var(--mute)}
+.ed button{border:0;background:none;color:var(--mute);width:22px;height:22px;border-radius:6px}
+.ed button:hover{background:#fbe0d8;color:var(--red-d)}
+.empty{font-size:12px;color:var(--mute);background:var(--paper2);border-radius:8px;padding:10px 12px;margin-top:8px;line-height:1.55}
+.empty b{color:var(--ink2)}
+
+/* run box */
+.live{margin-top:10px}
+.live .progTxt{font-size:12px;color:var(--ink2);margin-top:6px}
+.state{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin-bottom:8px}
+.state .sw.run{background:var(--teal);animation:pulse 1.2s infinite}
+.state .sw.pause{background:var(--amber)}
+.recdot{width:10px;height:10px;border-radius:50%;background:var(--red);animation:pulse 1s infinite}
+
+.toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 18px;border-radius:9px;z-index:50;box-shadow:0 6px 20px rgba(0,0,0,.25);font-size:13px}
+.modal{position:fixed;inset:0;background:rgba(28,34,48,.45);display:flex;align-items:center;justify-content:center;z-index:60}
+.modal .box{background:var(--card);border-radius:12px;padding:20px 22px;width:340px}
+.modal .box p{margin:0 0 12px}
+</style>
+<style>
+/* go2_v2 additions: layer panel, status lines */
+.layers{position:absolute;right:14px;top:14px;z-index:2;width:236px;background:rgba(251,249,244,.94);border:1px solid var(--line2);border-radius:10px;padding:8px 12px;font-size:13px;box-shadow:0 4px 14px rgba(28,34,48,.12)}
+.dark .layers{background:rgba(20,26,38,.9);border-color:#2b3345;color:#cfd5e0}
+.layers summary{cursor:pointer;font-weight:700;list-style:none}
+.layers summary::before{content:"▾ ";color:var(--mute)}
+.layers:not([open]) summary::before{content:"▸ "}
+.layers .slider{margin:6px 0}.layers .slider span:first-child{width:48px}.layers .slider b{width:38px}
+.dark .layers .slider b,.dark .layers .slider{color:#cfd5e0}
+.layers .check{display:flex;margin:5px 0}
+.dark .layers .check{color:#cfd5e0}
+.hud.br{bottom:44px}
+.card .alert{margin-bottom:10px}
+.layers{width:268px}
+.layers .slider{gap:8px}.layers .slider input{min-width:0;width:100%}
+.layers .slider span:first-child{width:52px}.layers .slider b{width:40px;flex:none}
+.maps.fold #mapNote{display:none}
+.stage.dark{background:var(--paper)}
+#stackBar{padding:11px 14px}
+#stackBar h2{margin:0 0 8px}
+#stackBar .row{margin:6px 0}
+.stline{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px}
+.stline .sw{width:10px;height:10px}
+.sw.ok{background:var(--teal)}.sw.warn{background:var(--amber);animation:pulse 1.2s infinite}.sw.bad{background:var(--red)}.sw.off{background:var(--mute)}
+.tail{font:11px/1.45 var(--mono);color:var(--ink2);background:var(--paper2);border-radius:8px;padding:6px 8px;margin-top:6px;max-height:120px;overflow:auto;white-space:pre-wrap;word-break:break-all}
+.modal .box{width:380px}
+.modal .box .fld{margin:8px 0}
+
+.offline{position:absolute;inset:0;z-index:5;background:rgba(243,239,230,.8);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--red-d)}
+.evl{list-style:none;margin:6px 0 0;padding:0;font:11.5px/1.45 var(--mono);color:var(--ink2);max-height:260px;overflow:auto}
+.evl li{padding:2px 0;border-bottom:1px dashed var(--line);word-break:break-all}
+.evl li.warn{color:var(--amber)}
+.wp .prob{grid-column:2/4;font-size:11px;color:var(--red-d)}
+.wp.badwp{border-color:var(--red)}
+code{font:12px var(--mono);background:var(--paper2);padding:0 4px;border-radius:4px}
+</style>
+<style>#stMotion{display:none}#finishCard,#trackCard{display:none}</style>
+<style>
+@media(max-width:1320px){.brand i{display:none}#robotChip{display:none}.top{gap:10px}}
+@media(max-width:760px){.realtime-entry{margin-left:8px;padding:7px 10px}}
+@media(max-width:1050px){main{grid-template-columns:minmax(0,1fr) 320px}.maps{display:none}.top{gap:8px;padding:0 10px}.brand i{display:none}.top .chip{display:none}.seg button{padding:6px 8px;gap:4px}.brand b{letter-spacing:.05em}}
+@media(max-width:600px){.top{flex-wrap:wrap;height:auto;min-height:54px;padding:8px}.brand{display:none}main{grid-template-columns:minmax(0,1fr);grid-template-rows:45% 55%}.stage{min-height:0}.side{min-height:0}.hud.tl{left:8px;top:8px}.hud.tl>*{max-width:100%}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="mark"></span><b>GO2</b><i>测绘巡航台</i></div>
+  <nav class="seg" id="stageNav">
+    <button data-s="build" class="on"><em>1</em>地图</button>
+    <button data-s="loc"><em>2</em>定位</button>
+    <button data-s="task"><em>3</em>任务</button>
+  </nav>
+  <button type="button" class="realtime-entry" id="openRealtime" title="切换到实时建图、单点导航和前沿探索">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m16 8-2.5 5.5L8 16l2.5-5.5Z"/></svg><span>实时导航</span>
+  </button>
+  <div class="grow"></div>
+  <div class="chip" id="modeChip"><b id="modeTxt">—</b></div>
+  <div class="chip" id="robotChip"><span class="dot"></span><b id="robotTxt">机器人 —</b></div>
+  <button class="chip btnlike warn" id="locChip" title="点击前往定位"><span class="dot"></span><b id="locChipTxt">定位 —</b><span class="mini"><i id="locChipBar"></i></span></button>
+  <button class="chip btnlike ok" id="alertChip" title="点击查看详情"><span class="dot"></span><b id="alertTxt">告警 0</b></button>
+  <button class="estop" id="estop" title="仿真急停：取消任务、速度置零、/dev_stop (Esc)">急停</button>
+</header>
+
+<main>
+  <aside class="maps" id="maps">
+    <div class="mh"><span>地图列表</span><button class="sq" id="mapFold" style="width:28px;height:28px;font-size:14px" title="折叠">«</button></div>
+      <section class="card" id="rtMapInfo" hidden style="margin:10px 8px">
+        <h2>定位与实时地图</h2>
+        <div class="kv"><span>定位状态</span><b id="rtLoc">等待定位</b></div>
+        <div class="kv"><span>位置 / 朝向</span><b id="rtPose">—</b></div>
+        <div class="kv"><span>已观测面积</span><b id="rtArea">0 m²</b></div>
+        <div class="kv"><span>前沿候选</span><b id="rtFrontiers">0</b></div>
+        <div class="kv"><span>导航剩余</span><b id="rtRemaining">—</b></div>
+        <p class="note"><i class="sw" style="background:#e2461f"></i>红色：实时扫描　<i class="sw" style="background:#00bcd4"></i>青色：近期障碍（30秒）。灰色为未知；底图随观测积累。</p>
+        <div class="row" style="margin-top:10px"><button class="btn block" id="rtSave" disabled>保存当前地图快照</button></div>
+        <p class="note mono" id="rtSaved"></p>
+      </section>
+    <ul class="mlist" id="mlist"></ul>
+    <p class="note" style="margin:0 12px 12px" id="mapNote">点地图 = 查看。在「定位」「任务」页点地图 = 选这张图来导航；修图在「1 建图 / 修图」。</p>
+  </aside>
+
+  <section class="stage" id="stage">
+    <canvas id="gl"></canvas>
+    <canvas id="cv"></canvas>
+    <div class="hud tl" id="hudTl"></div>
+    <div class="hud bl mono" id="hudCoord">x 0.00  y 0.00</div>
+    <div class="hud bc"><div class="viewseg" id="viewSeg">
+      <button data-v="slice" class="on">切面 2D</button><button data-v="3d">3D 点云</button>
+    </div></div>
+    <details class="layers" id="layers" open>
+      <summary>图层</summary>
+      <div class="slider"><span title="2D 切面：只画 Z±厚度 内的点；3D：隐藏高于 Z+厚度 的点（勾选「切面上方标红」则改为标红）">Z 切面</span><input type="range" id="zs" min="-2" max="3" step="0.05" value="0.85"><b class="mono" id="zsV">0.85</b></div>
+      <div class="slider"><span>厚度 ±</span><input type="range" id="zt" min="0.05" max="1.5" step="0.05" value="0.7"><b class="mono" id="ztV">0.70</b></div>
+      <div class="slider" id="psBox"><span>点大小</span><input type="range" id="ps" min="0.5" max="3" step="0.1" value="1.2"><b class="mono" id="psV">1.2</b></div>
+      <label class="check"><input type="checkbox" id="lyLive" checked> 实时障碍（<span style="color:#e0a800">■</span> 动态 · <span style="color:#00bcd4">■</span> 静态）</label>
+      <div class="slider" id="ttlDynBox" title="动态障碍（连续被看到不足 3 秒，如走过的人）最后一次看到后保留多久"><span style="color:#e0a800">动态</span><input type="range" id="ttlDyn" min="1" max="30" step="1" value="5"><b class="mono" id="ttlDynV">5</b><small>秒</small></div>
+      <div class="slider" id="ttlStaBox" title="静态障碍（连续被看到 3 秒以上，如箱子、墙）最后一次看到后保留多久；视野内再次看到空地会立刻清除"><span style="color:#00a5bd">静态</span><input type="range" id="ttlSta" min="10" max="600" step="10" value="90"><b class="mono" id="ttlStaV">90</b><small>秒</small></div>
+      <label class="check"><input type="checkbox" id="lyStatic" checked> 地图点云（有则显示）</label>
+      <label class="check"><input type="checkbox" id="lyScan" checked> 实时雷达扫描（红点）</label>
+      <div class="slider" id="bandBox"><span>层高</span><input type="range" id="bandH" min=".1" max=".8" step=".05" value=".3"><b class="mono" id="bandHV">0.30</b><small>m</small></div>
+      <div class="slider" id="edlKBox"><span>轮廓</span><input type="range" id="edlK" min="0" max="60" step="1" value="14"><b class="mono" id="edlKV">14</b></div>
+      <label class="check" id="lyAboveBox"><input type="checkbox" id="lyAbove"> 切面上方标红（3D）</label>
+      <p class="note mono" id="cloudInfo" style="margin:4px 0 0"></p>
+    </details>
+    <div class="hud br">
+      <button class="sq" id="zIn" title="放大">+</button>
+      <button class="sq" id="zOut" title="缩小">−</button>
+      <button class="sq" id="zFit" title="适应地图">⤢</button>
+      <button class="sq" id="follow" title="跟随机器人">◎</button>
+    </div>
+    <div class="banner" id="banner" hidden></div>
+    <div class="offline" id="offline" hidden>与网页后端断开，正在重连…</div>
+  </section>
+
+  <aside class="side" id="side">
+    <section class="card" id="stackBar" hidden>
+      <h2>系统</h2>
+      <div class="stline"><span class="sw off" id="stSw"></span><span id="stTxt">未启动</span></div>
+      <p class="note" id="stHint" style="margin:6px 0 0" hidden></p>
+      <div id="stIdle">
+        <div class="fld" id="stMapRow"><span>地图</span><select id="stMap"></select></div>
+        <label class="check" style="display:flex;margin:6px 0"><input type="checkbox" id="stMotion" checked disabled> Gazebo 仿真运动（不连接真狗）</label>
+        <p class="note" style="margin-top:0">启动本机 Gazebo 窗口与导航节点，不连接真狗。停止时同时关闭服务端、窗口和本次节点。</p>
+        <div class="row"><button class="btn primary block" id="stStart">▶ 启动</button></div>
+      </div>
+      <div id="stRun" hidden><div class="row"><button class="btn danger block" id="stStop">■ 停止（等同 Ctrl-C）</button></div></div>
+      <div class="alert" id="stFinish" hidden></div>
+      <div class="tail" id="stTail" hidden></div>
+    </section>
+    <div class="seg small" id="rtMethod"><button data-rt="point" class="on">单点导航</button><button data-rt="explore">前沿探索</button><button data-rt="manual">手动遥控</button></div>
+    <div class="seg small" id="subNav"></div>
+
+    <!-- ===== 1 建图 / 建图 ===== -->
+    <div class="tab" data-t="build.map">
+      <div class="alert bad" id="mapHealth" hidden></div>
+      <p class="intro"><b>Gazebo 固定地图仿真。</b>在上方选择导入的 2D 地图，点击「打开 Gazebo 并启动导航」。使用定位、航点和任务页面控制仿真。使用仿真点云与 IMU 接入 Leg-KILO 定位，保留真实对角步态；网页 3D 点云暂为空。</p>
+      <section class="card" id="bStatusCard">
+        <h2><span class="n">1</span>建图状态</h2>
+        <div class="kv"><span>运行模式</span><b id="bMode">—</b></div>
+        <div class="kv"><span>实时点云</span><b id="bCloud">—</b></div>
+        <div class="kv"><span>运行目录</span><b id="bRun" style="font-size:11px">—</b></div>
+        <p class="note" id="bNote"></p>
+      </section>
+
+
+      <section class="card" id="trackCard">
+        <h2><span class="n">3</span>示教路线（自动记录）</h2>
+        <div class="kv"><span>已记录的路径</span><b id="trLen">—</b></div>
+        <div class="kv"><span>停靠点</span><b id="trMarks">0</b></div>
+        <div class="row"><button class="btn block" id="trMark">📍 在此标记停靠点</button></div>
+        <p class="note">建图时你遥控走的这一段会被自动记下。结束建图时可以选择把它保存为示教路线，以后让狗照着走；停靠点 = 狗走到那里会先到达一次。</p>
+      </section>
+
+      <section class="card" id="finishCard">
+        <h2><span class="n">4</span>结束并保存</h2>
+        <div class="row"><input class="txt" id="saveName" placeholder="地图名，如 lab_floor1"><button class="btn primary" id="saveBtn">结束并保存</button></div>
+        <p class="note" id="finishNote">保存前让狗停稳。结束运行后，后台生成地图（2D 图 + 3D 点云），进度显示在「系统」卡片。生成好后到「2 定位」页选这张图启动导航。</p>
+      </section>
+    </div>
+
+    <!-- ===== 1 建图 / 修图 ===== -->
+    <div class="tab" data-t="build.edit" hidden>
+      <p class="intro"><b>给已建好的 2D 地图“打补丁”。</b>激光穿过玻璃看不见墙，狗会撞上去 —— 用「补墙」画上（画的墙是<b>硬墙</b>，导航时绝不穿过，显示为青色；扫描出来的墙只是“可能有”，激光看到没了狗就会走）；地图里有噪点/杂物 —— 用「擦除」抹掉。<b>改动先暂存，点“保存到地图”才真正写入。</b>只改 2D 图，3D 点云不变。修图不需要启动系统。</p>
+      <section class="card">
+        <h2><span class="n">1</span>选工具，在地图上操作 <span class="rt mono" id="edMapName"></span></h2>
+        <div class="seg small inl" id="edTool"><button data-t="wall" class="on">补墙</button><button data-t="erase">擦除</button></div>
+        <div id="edWallBox">
+          <div class="row"><button class="btn primary block" id="edGo">在地图上画墙</button></div>
+          <p class="note">点击后，在地图上<b>依次点墙的两个端点</b>（墙厚 0.1 m）。</p>
+        </div>
+        <div id="edEraseBox" hidden>
+          <div class="fld"><span>擦除半径</span><input class="txt" id="eR" value="0.5"><span style="width:auto">m</span></div>
+          <div class="row"><button class="btn primary block" id="edGo2">在地图上擦除</button></div>
+          <p class="note">点击后，在地图上<b>点要擦掉的位置</b>，红色虚线圈内的墙会变成空地。</p>
+        </div>
+      </section>
+      <section class="card">
+        <h2><span class="n" id="ed2n">2</span>待保存的改动 <span class="count" id="edCount">0</span></h2>
+        <ul class="edlist" id="edList"></ul>
+        <div class="empty" id="edEmpty">还没有改动。先在上一步画墙或擦除。</div>
+      </section>
+      <section class="card">
+        <h2><span class="n">3</span>保存</h2>
+        <div class="row"><button class="btn go block" id="edSave" disabled>保存到地图</button><button class="btn block" id="edDiscard" disabled>放弃这些改动</button></div>
+        <p class="note">保存会改写这张地图的图片，并先备份一份。保存后想反悔：<button class="link" id="edRestore">还原最近一次保存</button></p>
+        <p class="note" id="edReload" hidden><b>这张图正在被导航使用</b>：要在「系统」停止后重新启动导航，改动才生效。</p>
+      </section>
+    </div>
+
+    <!-- Same canvas, palette and control cards for realtime navigation. -->
+    <div class="tab" data-t="realtime.control" hidden>
+      <p class="intro">在当前场景中边扫描边建图。选择已知区域的目标，或让机器人自动探索前沿。</p>
+      <section class="card">
+        <h2><span class="n">1</span>设置任务</h2>
+        
+        <div class="state" style="margin-top:12px"><span class="sw" id="rtSw"></span><b id="rtStatus">等待启动</b></div>
+        <p class="note" id="rtReason">先在上方启动实时导航。</p>
+        <div id="rtPointBox">
+          <div class="kv"><span>目标位置</span><span class="rgt"><b id="rtTarget">未选择</b><button class="x" id="rtClear" title="删除目标" aria-label="删除目标" hidden>✕</button></span></div>
+          <div class="row" style="margin-top:10px"><button class="btn block" id="rtPick">在地图上选目标</button></div>
+          <p class="note">只选择已观测的空闲区域。目标和路径均由原规划器检查。</p>
+        </div>
+        <div id="rtExploreBox" hidden><p class="note">选择已知与未知的边界，检查通过后自动逐个前往。</p></div>
+        <p class="note" id="rtManualNote" hidden>切到手动会取消自动任务。使用下方原有遥控面板；手动遥控没有障碍防撞限制。</p>
+      </section>
+      <section class="card" id="rtExecute"><h2><span class="n">2</span>执行任务</h2>
+        <div class="row"><button class="btn go block" id="rtGo" disabled>前往目标</button><button class="btn go block" id="rtExplore" disabled>开始探索</button></div>
+        <div class="row" style="margin-top:10px"><button class="btn danger block" id="rtPause" disabled>暂停</button></div>
+        <div class="alert" id="rtNotice" hidden></div>
+      </section>
+
+    </div>
+
+    <!-- ===== 2 定位 / 定位 ===== -->
+    <div class="tab" data-t="loc.loc" hidden><p class="intro">Leg-KILO 提供仿真中的 SLAM 位姿，固定图启动时用已配置出生点作初始对齐提示。地图是你导入的 2D 图；3D 点云暂为空。启动后到「任务」添加航点。</p>
+      <p class="intro"><b>当前使用 Leg-KILO 定位。</b>点云与 IMU 来自 Gazebo 传感器；定位健康通过后才开放导航。</p>
+      <div class="alert" id="locNeedNav" hidden><span>ⓘ</span><span id="locNeedNavTxt">在上方选择地图并打开 Gazebo；等待 Leg-KILO 位姿和地图对齐就绪。</span></div>
+      <section class="card" id="locCard">
+        <h2><span class="n" id="lcN1">1</span>设置初始定位</h2>
+        <div class="row"><button class="btn block" id="poseTool">在地图上设置初始位置</button><button class="btn ghost" id="poseDock" title="建图时的起点 (0, 0)">用建图起点</button></div>
+        <div class="kv"><span><i class="sw" style="background:#8a63d2"></i>初始位置</span><b id="poseV">—</b></div>
+        <div class="kv"><span>对齐结果</span><b id="alignV">本次还没有定位</b></div>
+        <p class="note">点按钮后，在地图上<b>狗所在的位置按下，并拖向它面朝的方向</b>。位置不用很准。</p>
+        <div class="row"><button class="btn primary block" id="relocBtn" disabled>开始定位</button></div>
+      </section>
+      <section class="card">
+        <h2><span class="n">2</span>定位状态</h2>
+        <div class="loc"><div class="gauge"><i id="gFill"></i><u id="gMark"></u></div><div class="locTxt"><b id="gState">—</b><span class="mono" id="gScore">—</span></div></div>
+        <div class="alert" id="gMsg"></div>
+        <p class="note">当前位置来自 Leg-KILO。地图上的红点是按安装外参生成的 Mid360 视场近似扫描，不代表真实扫描花纹。</p>
+      </section>
+    </div>
+
+    <!-- ===== 2 定位 / 定位诊断 ===== -->
+    <div class="tab" data-t="loc.diag" hidden>
+      <p class="intro"><b>检查定位准不准，以及为什么不准。</b>下面都是栈里正在发布的真实数值，不是推算。</p>
+      <section class="card">
+        <h2>结论 <span class="rt" id="dTag"></span></h2>
+        <div class="alert" id="dMsg"></div>
+      </section>
+      <section class="card">
+        <h2>定位</h2>
+        <div id="dLoc"></div>
+      </section>
+      <section class="card">
+        <h2>狗与安全</h2>
+        <div id="dDev"></div>
+      </section>
+      <section class="card">
+        <h2>最近事件 <span class="rt">warn 高亮</span></h2>
+        <ul class="evl" id="evList"></ul>
+      </section>
+    </div>
+
+    <!-- ===== 3 任务（共用提示） ===== -->
+    <div class="alert" id="needLoc" hidden>
+      <span>⚠</span><span id="needLocTxt">尚未定位。任务需要先定位成功。</span>
+      <button class="btn go2 sm" id="goLoc">去定位</button>
+    </div>
+
+    <!-- ===== 3 任务 / 多点巡航 ===== -->
+    <div class="tab" data-t="task.wp" hidden>
+      <p class="intro"><b>让狗按顺序走过你在地图上点的若干个点。</b>适合固定巡检：点好点 → 检查 → 开始。每个点是一个区域，到达区域内即算到达。</p>
+      <section class="card">
+        <h2><span class="n" id="wpN1">1</span>设置航点 <span class="count" id="wpCount">0</span></h2>
+        <div class="row"><button class="btn block" id="wpPick">＋ 在地图上点选</button><button class="btn" id="wpHere">记录当前位置 <kbd>P</kbd></button></div>
+        <ul class="wplist" id="wpList"></ul>
+        <div class="empty" id="wpEmpty">还没有航点。点“在地图上点选”，在地图上<b>按下并拖动</b>：按下的位置 = 点的位置，拖动的方向 = 狗到点后面朝的方向。</div>
+        <div class="row" id="wpTools"><button class="btn block" id="wpUndo">撤销上一个</button><button class="btn block" id="wpClear">清空</button></div>
+        <details class="more"><summary>航线文件</summary>
+          <div class="fld"><span>已有</span><select id="msSel"></select><button class="btn sm" id="msLoad">载入</button></div>
+          <div class="fld"><span>另存为</span><input class="txt" id="msName" placeholder="如 east_corridor"><button class="btn sm" id="msSave">保存</button></div>
+        </details>
+      </section>
+      <section class="card" data-need-lock>
+        <h2><span class="n" id="wpN2">2</span>检查航点</h2>
+        <p class="note first">用和执行时同一套规则检查：是否在图内、周围净空够不够、是不是未知区、和上一个点是否连通。</p>
+        <div class="row"><button class="btn primary block" id="wpCheck">检查航点</button></div>
+        <div class="kv"><span>检查结果</span><b id="wpCheckInfo">未检查</b></div>
+      </section>
+      <section class="card" data-need-lock>
+        <h2><span class="n" id="wpN3">3</span>执行</h2>
+        <label class="check" style="display:flex;margin:6px 0"><input type="checkbox" id="pLoop"> 循环巡航</label>
+        <div class="runbox" data-ui="wp" data-label="▶ 开始巡航"></div>
+      </section>
+    </div>
+
+    <!-- ===== 3 任务 / 示教路线 ===== -->
+    <div class="tab" data-t="task.teach" hidden>
+      <p class="intro"><b>你带一遍，狗以后照着走。</b>路线来自<b>建图时你遥控走的那一段</b>（结束建图时选择保存），属于那张地图。选一条路线，狗就沿着同样的线自动走。</p>
+      <section class="card">
+        <h2><span class="n" id="thN1">1</span>已录路线 <span class="count" id="rtCount">0</span></h2>
+        <ul class="rtlist" id="rtList"></ul>
+        <div class="empty" id="rtEmpty">这张地图还没有示教路线。建图时遥控走一圈，结束时勾选「保存为示教路线」。</div>
+      </section>
+      <section class="card" data-need-lock>
+        <h2><span class="n" id="thN2">2</span>让狗照着走</h2>
+        <p class="note first">在上面选中一条路线（地图上的橙色线），再点开始。狗<b>沿着你当时走的线</b>走（不重新规划路线；线上被挡了才临时绕开再回到线上），走到停靠点会停下再继续。</p>
+        <label class="check" style="display:flex;margin:6px 0"><input type="checkbox" id="thNear" checked> 就近上线（从离狗最近的点开始）</label>
+        <label class="check" style="display:flex;margin:6px 0"><input type="checkbox" id="thLoop"> 循环</label>
+        <div class="runbox" data-ui="teach" data-label="▶ 开始照着走"></div>
+      </section>
+    </div>
+
+    <div class="tab" data-t="task.tele" hidden></div>
+
+    <!-- ===== 3 任务 / 单点前往 ===== -->
+    <div class="tab" data-t="task.go" hidden>
+      <p class="intro"><b>让狗自己走到地图上的某一个点。</b>临时叫它去一个地方时用：选终点 → 开始。起点永远是狗当前位置。</p>
+      <section class="card">
+        <h2><span class="n" id="goN1">1</span>选终点</h2>
+        <div class="kv"><span><i class="sw" style="background:var(--blue)"></i>终点</span><span class="rgt"><b id="plEV">—</b><button class="x" id="plEX" hidden>✕</button></span></div>
+        <div class="row" style="margin-top:10px"><button class="btn block" id="plE">在地图上选目标</button></div>
+        <p class="note">点「在地图上选目标」后在地图上点位置，<b>按下并拖动可设置到达后的朝向</b>。点 ✕ 可清除重选。</p>
+      </section>
+      <section class="card" data-need-lock>
+        <h2><span class="n" id="goN2">2</span>前往</h2>
+        <div class="runbox" data-ui="go" data-label="▶ 开始前往"></div>
+      </section>
+    </div>
+      <section class="card" id="teleCard">
+        <h2><span class="n" id="teleN">2</span>遥控<button class="btn sm ghost" id="teleFold" style="margin-left:auto">收起</button></h2>
+        <div id="teleBody">
+        <div class="alert" id="motionWarn" hidden><span>⚠</span><span>启动时没勾「允许 ROS 驱动狗」：网页发的速度不会让狗动。要遥控，先「停止」，勾上再启动。</span></div>
+        <div class="src" id="ctlSrc">
+          <button data-c="kb" class="on"><b>键盘</b><small>Q W E / A S D</small></button>
+          <button data-c="gp"><b>手柄</b><small>浏览器手柄</small></button>
+        </div>
+        <div id="kbBox">
+          <div class="pad">
+            <button data-k="q" class="k">Q<small>左移</small></button><button data-k="w" class="k">W<small>前进</small></button><button data-k="e" class="k">E<small>右移</small></button>
+            <button data-k="a" class="k">A<small>左转</small></button><button data-k="s" class="k">S<small>后退</small></button><button data-k="d" class="k">D<small>右转</small></button>
+          </div>
+          <p class="note" style="margin-top:0">按住按键移动，松开即停；空格＝停止。</p>
+        </div>
+        <div id="gpBox" hidden>
+          <div class="gp"><span id="gpState">未检测到手柄 — 连接后按任意键唤醒</span>
+            <div class="axes">
+              <div><div class="stick"><i id="gpL"></i></div><small>左摇杆 平移</small></div>
+              <div><div class="stick"><i id="gpR"></i></div><small>右摇杆 转向</small></div>
+            </div>
+          </div>
+          <p class="note">推摇杆即动，松开即停。</p>
+        </div>
+        <div class="slider"><span>线速度</span><input type="range" id="spd" min="0.05" max="0.5" step="0.05" value="0.5"><b class="mono" id="spdV">0.50</b><small>m/s</small></div>
+        <div class="slider"><span>角速度</span><input type="range" id="trn" min="0.1" max="0.5" step="0.05" value="0.5"><b class="mono" id="trnV">0.50</b><small>rad/s</small></div>
+        <p class="note" id="speedNote"></p>
+        <p class="note" id="teleSafe"></p>
+        </div>
+      </section>
+  </aside>
+</main>
+
+<div class="modal" id="finModal" hidden><div class="box">
+  <p><b>结束建图并保存为「<span id="finName"></span>」？</b><br><span id="finStopInfo">这会停止整个运行（等同 Ctrl-C）。</span></p>
+  <label class="check" style="display:flex;margin:10px 0"><input type="checkbox" id="finRoute" checked> 把刚才遥控走的路段保存为示教路线</label>
+  <div class="fld" id="finRouteRow"><span>路线名</span><input class="txt" id="finRouteName"></div>
+  <p class="note" id="finWarn" style="color:var(--red-d);font-weight:700" hidden></p>
+  <p class="note" id="finInfo"></p>
+  <div class="row end"><button class="btn" id="finNo">取消</button><button class="btn primary" id="finYes">结束并保存</button></div>
+</div></div>
+<div class="toast" id="toast" hidden></div>
+<div class="modal" id="modal" hidden><div class="box"><p id="modalMsg"></p><div class="row end"><button class="btn" id="mNo">取消</button><button class="btn primary" id="mYes">确定</button></div></div></div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const S={stage:location.pathname.startsWith('/realtime')?'realtime':'loc',sub:{build:'map',loc:'loc',task:'wp',realtime:'control'},view:'slice',iso:'iso',
+  st:null,fails:0,mode:'',loaded:'',maps:[],missions:[],
+  viewMap:null,meta:null,img:null,stat:null,live:null,liveRev:-1,liveAt:0,
+  evidence:null,evidenceRev:-1,evidencePending:-1,online:null,onlineRev:-1,onlinePending:null,session:null,
+  rtControl:'point',rtTarget:null,rtClient:crypto.randomUUID(),alignSending:false,alignRequestId:null,
+  routes:[],route:null,track:null,wps:[],sel:null,tool:null,toolBuf:null,hover:null,edits:[],goal:null,init:null,problems:null,checkedKey:'',
+  cam:{cx:0,cy:0,s:40,angle:0},follow:false,ctl:'kb',keys:{},dirty:true,estopAt:0};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const fx=p=>p?`(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`:'—';
+const deg=th=>th==null?'朝向不限':Math.round(th*180/Math.PI)+'°';
+const num=(v,d=2,u='')=>v==null||Number.isNaN(v)?'—':(+v).toFixed(d)+u;
+
+/* ---------- 后端 ---------- */
+async function api(path,body){
+  const o=body===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json','X-Go2':'1'},body:JSON.stringify(body)};
+  const r=await fetch(path,o);const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(j.error||('HTTP '+r.status));return j}
+async function bin(path){const r=await fetch(path);if(!r.ok)throw new Error('HTTP '+r.status);
+  const b=await r.arrayBuffer();return{pts:new Float32Array(b),rev:+r.headers.get('X-Rev')||0}}
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600)}
+function confirmBox(msg,yes){$('#modalMsg').textContent=msg;$('#modal').hidden=false;$('#mYes').onclick=()=>{$('#modal').hidden=true;yes()};$('#mNo').onclick=()=>$('#modal').hidden=true}
+function banner(msg,bad){const b=$('#banner');if(!msg){b.hidden=true;return}b.textContent=msg;b.className='banner'+(bad?' bad':'');b.hidden=false}
+const fail=e=>toast('失败：'+e.message);
+
+/* ---------- 阶段 / 子页签 ---------- */
+const SUBS={build:[['map','建图'],['edit','修图']],loc:[['loc','定位'],['diag','定位诊断']],task:[['wp','多点巡航'],['go','单点前往'],['teach','示教路线'],['tele','遥控']],realtime:[['control','实时导航']]};
+const isNav=()=>S.mode==='nav',isMap=()=>S.mode==='map';
+const locOK=()=>{const l=S.st&&S.st.loc;return !!l&&l.state!=='LOST'};
+// tasks need this run's alignment (task_executor refuses before ALIGN_OK / ALIGN_WEAK: map->odom is only a guess until then)
+const ready=()=>isNav()&&locOK()&&!!(S.st&&S.st.aligned);
+// which stack this page needs: build/map = mapping, loc + task = navigation, build/edit = none (it only edits files)
+const wantMode=()=>S.stage==='realtime'?'realtime':S.stage==='build'&&S.sub.build!=='map'?null:'nav';
+const running=()=>['map','nav','realtime'].includes(S.mode);
+function placeRealtimeInfo(){const card=$('#rtMapInfo'),target=innerWidth<=1050?$('#side'):$('#maps');if(card.parentElement!==target)target.appendChild(card)}
+addEventListener('resize',placeRealtimeInfo);
+function renderNav(){
+  placeRealtimeInfo();
+  $('#maps').classList.toggle('realtime-info',S.stage==='realtime');
+  $('#subNav').hidden=S.stage==='realtime';$('#rtMethod').hidden=S.stage!=='realtime';$('#rtMapInfo').hidden=S.stage!=='realtime';$('#mlist').hidden=S.stage==='realtime';$('#mapNote').hidden=S.stage==='realtime';$('#maps .mh span').textContent=S.stage==='realtime'?'定位与实时地图':'地图列表';
+  $('#openRealtime').classList.toggle('on',S.stage==='realtime');
+  $$('#stageNav button').forEach(b=>{b.classList.toggle('on',b.dataset.s===S.stage);b.classList.toggle('warn',b.dataset.s==='loc'&&isNav()&&!ready()&&S.stage!=='loc')});
+  $('#subNav').innerHTML=SUBS[S.stage].map(([k,n])=>`<button data-k="${k}" class="${S.sub[S.stage]===k?'on':''}">${n}</button>`).join('');
+  $$('#subNav button').forEach(b=>b.onclick=()=>{clearKeys();S.sub[S.stage]=b.dataset.k;endTool();renderNav()});
+  const id=S.stage+'.'+S.sub[S.stage];
+  $$('.tab').forEach(t=>t.hidden=t.dataset.t!==id);
+  const need=S.stage==='task'&&S.sub.task!=='tele'&&!ready();
+  $('#needLoc').hidden=!need;
+  $('#needLocTxt').textContent=!running()?'系统还没启动：在上方「系统」选地图并启动导航。':S.mode==='realtime'?'当前是实时导航，可在实时导航工作区操作；固定地图任务需先停止后切换。':!isNav()?'任务要在固定地图导航模式下做（上方「系统」）。':!locOK()?'等待 Leg-KILO 定位恢复。':'等待 Leg-KILO 定位与对齐就绪。';
+  $('#goLoc').hidden=!isNav();
+  $$('[data-need-lock]').forEach(c=>c.classList.toggle('lock',need));
+  const nav=isNav();
+  $('#finishCard').classList.toggle('lock',!isMap());$('#trackCard').classList.toggle('lock',!isMap());
+  $('#locCard').classList.toggle('lock',!nav);$('#locNeedNav').hidden=nav;
+  $('#locNeedNavTxt').textContent=S.mode==='realtime'?'实时建图以本次 SLAM 起点为原点。手动初始定位用于固定地图导航。':isMap()?'现在在建图：定位要在导航模式下做。要导航，先在「1 建图」结束并保存（或停止），再在上方「系统」启动导航。':'在上方选择地图并打开 Gazebo；等待 Leg-KILO 位姿和地图对齐就绪。';
+  placeTele();
+  // in localisation and tasks the base map is ALWAYS the one being navigated: points clicked on another map's picture
+  // would be sent in the wrong map's coordinates
+  if(isNav()&&S.stage!=='build'&&S.loaded&&S.viewMap!==S.loaded)viewMap(S.loaded);
+  if(S.st)renderStack(S.st);
+  $('#side').scrollTop=0;updRun();renderEdits();S.dirty=true}
+$('#openRealtime').onclick=()=>{leaveRealtimeView();S.stage='realtime';endTool();clearKeys();renderNav();S.dirty=true};
+$$('#stageNav button').forEach(b=>b.onclick=()=>{leaveRealtimeView();S.stage=b.dataset.s;endTool();renderNav()});
+$('#goLoc').onclick=()=>{S.stage='loc';S.sub.loc='loc';renderNav()};
+$('#locChip').onclick=()=>{S.stage='loc';S.sub.loc='loc';renderNav()};
+$('#alertChip').onclick=()=>{S.stage='loc';S.sub.loc='diag';renderNav()};
+
+/* ---------- 地图列表 / 载入地图图像 ---------- */
+function renderMaps(){
+  if(S.mode==='realtime'){$('#mlist').innerHTML='<li class="on"><span class="dot"></span><span class="nm">本次实时地图</span><span class="tag">在线</span></li>';$('#mapNote').textContent='只显示本次扫描观测到的区域；未知区域保持灰色。';return}
+  $('#mapNote').textContent='点地图 = 查看。在「定位」「任务」页选择导航图；修图在「1 地图 / 修图」。';
+  $('#mlist').innerHTML=S.maps.map(m=>`<li class="${m.name===S.viewMap?'on':''}" data-m="${esc(m.name)}"><span class="dot"></span><span class="nm">${esc(m.name)}</span>${m.name===S.loaded?'<span class="tag">使用中</span>':m.cloud?'<span class="tag">3D</span>':''}</li>`).join('')||'<li style="cursor:default">（maps/ 里还没有地图）</li>';
+  $$('#mlist li[data-m]').forEach(li=>li.onclick=()=>pickMap(li.dataset.m))}
+function pickMap(name){
+  if(isNav()&&S.stage!=='build'&&name!==S.loaded){        // never swap the picture under localisation / tasks
+    S.stage='build';S.sub.build='edit';endTool();renderNav();toast('在「修图」里查看「'+name+'」；导航用的仍是「'+S.loaded+'」')}
+  if(!running())$('#stMap').value=name;                     // idle: the clicked map is the one to navigate on
+  viewMap(name)}
+async function viewMap(name){
+  if(S.edits.length&&name!==S.viewMap){S.edits=[];toast('已放弃未保存的改动')}
+  S.viewMap=name;S.meta=null;S.img=null;S.stat=null;S.problems=null;renderMaps();renderEdits();
+  if(!name){S.dirty=true;return}
+  try{
+    S.meta=await api(`/api/map/${encodeURIComponent(name)}/meta`);
+    const im=new Image();im.onload=()=>{S.img=im;S.dirty=true};im.src=`/api/map/${encodeURIComponent(name)}/image.png?t=${Date.now()}`;
+    await new Promise(r=>requestAnimationFrame(r));resize();fitView();
+    const m=S.maps.find(x=>x.name===name);
+    if(m&&m.cloud){S.stat=(await bin(`/api/map/${encodeURIComponent(name)}/cloud`)).pts;S.glFitted=false;if(S.view==='3d'&&GL.ok){S.glFitted=true;GL.fit()}S.dirty=true}
+  }catch(e){fail(e)}}
+$('#mapFold').onclick=()=>{const m=$('#maps');m.classList.toggle('fold');$('#mapFold').textContent=m.classList.contains('fold')?'»':'«';setTimeout(resize,230)};
+async function loadMaps(){const j=await api('/api/maps');S.maps=j.maps;S.loaded=j.loaded;S.mode=j.mode;S.missions=j.missions;
+  $('#stMap').innerHTML=S.maps.map(m=>`<option ${m.name===S.loaded?'selected':''}>${esc(m.name)}</option>`).join('');
+  $('#msSel').innerHTML=S.missions.filter(n=>!n.startsWith('_')).map(n=>`<option>${esc(n)}</option>`).join('');renderMaps();loadRoutes()}
+
+/* ---------- 状态轮询 ---------- */
+async function poll(){
+  try{const st=await api('/api/state');S.st=st;S.fails=0;$('#offline').hidden=true;onState(st)}
+  catch(e){if(++S.fails>=3){$('#offline').hidden=false}}
+  setTimeout(poll,100)}
+let lastNavKey='';
+function queueDisplayPose(st){
+  const p=st.pose,now=performance.now();
+  if(!p||alignmentPending(st)){S.poseFrames=[];return}
+  const q=S.poseFrames||(S.poseFrames=[]),last=q.at(-1);
+  if(last&&(last.p.frame!==p.frame||Math.hypot(last.p.x-p.x,last.p.y-p.y)>1))q.length=0;
+  if(!q.length||p.x!==q.at(-1).p.x||p.y!==q.at(-1).p.y||p.th!==q.at(-1).p.th)q.push({t:now,p:{...p}});
+  while(q.length>12)q.shift();
+}
+function displayPose(now=performance.now()){
+  const q=S.poseFrames||[];if(!q.length)return null;
+  const t=now-150;while(q.length>2&&q[1].t<=t)q.shift();
+  const a=q[0],b=q[1];if(!b||t<=a.t)return a.p;
+  const u=Math.max(0,Math.min(1,(t-a.t)/(b.t-a.t)));
+  const d=Math.atan2(Math.sin(b.p.th-a.p.th),Math.cos(b.p.th-a.p.th));
+  return {...b.p,x:a.p.x+(b.p.x-a.p.x)*u,y:a.p.y+(b.p.y-a.p.y)*u,th:a.p.th+d*u};
+}
+function onState(st){
+  const sessionChanged=st.session_id!==S.session;
+  if(sessionChanged){resetSessionView(st.session_id);S.st=st}
+  queueDisplayPose(st);syncTtl(st.evidence_ttl);
+  const first=!S.seen;S.seen=true;
+  if(first||sessionChanged||st.mode!==S.mode||st.map!==S.loaded){const mapChanged=st.map!==S.loaded;S.mode=st.mode;S.loaded=st.map;
+    // follow the stack: mapping -> 1 建图; navigation not yet aligned -> 2 定位, aligned -> 3 任务 when coming from 建图 or
+    // opening the page; idle keeps the page
+    if(st.mode==='realtime'){S.stage='realtime';S.sub.realtime='control'}
+    else if(first&&S.stage==='realtime'){}
+    else if(st.mode==='map'){S.stage='build';S.sub.build='map'}
+    else if(st.mode==='nav'&&!st.aligned){S.stage='loc';S.sub.loc='loc'}
+    else if(st.mode==='nav'&&(first||S.stage==='build'))S.stage='task'
+    S.autoFit=false;S.glRange=-1;endTool();renderNav();if(mapChanged)loadRoutes()}
+  const dev=st.dev,rc=$('#robotChip');
+  rc.className='chip '+(!dev?'bad':dev.fault?'bad':'ok');
+  $('#robotTxt').textContent=!dev?'机器人 无数据':dev.fault?'机器人 故障':`机器人 在线${dev.battery_v?' · '+dev.battery_v.toFixed(1)+'V':''}`;
+  $('#modeTxt').textContent=({nav:'导航',realtime:'实时导航',map:'建图',idle:'未启动'})[st.mode]+(st.map?' · '+st.map:'')+(st.enable_motion?' · 仿真运动':'');
+  $('#modeChip').style.background=st.enable_motion?'#7a3a10':'';
+  const l=st.loc,lc=$('#locChip');
+  const sc=l&&l.map_score!=null?l.map_score:null;
+  const alignPending=alignmentPending(st),alignFailed=st.alignment&&st.alignment.state==='failed',alignWeak=st.alignment&&st.alignment.state==='weak';
+  lc.className='chip btnlike '+(alignFailed?'bad':alignPending||alignWeak?'warn':!l?'warn':l.state==='OK'?'ok':l.state==='DEGRADED'?'warn':'bad');
+  $('#locChipTxt').textContent=alignPending?'定位中':alignFailed?'定位失败':alignWeak?'定位 弱对齐':!l?'定位 无数据':'定位 '+({OK:'正常',DEGRADED:'偏低',LOST:'丢失'})[l.state]+(sc!=null?' '+Math.round(sc*100)+'%':'');
+  $('#locChipBar').style.width=(sc!=null?sc*100:0)+'%';
+  const al=$('#alertChip'),n=st.alerts.length;al.className='chip btnlike '+(st.alerts.some(a=>a.level==='bad')?'bad':n?'warn':'ok');$('#alertTxt').textContent='告警 '+n;
+  const key=`${st.mode}|${locOK()}|${st.aligned}`;if(key!==lastNavKey){lastNavKey=key;renderNav()}
+  if(!S.spdSet&&st.speeds){S.spdSet=true;$('#spd').value=st.speeds.forward;$('#trn').value=st.speeds.turn;   // defaults = speeds.yaml
+    $('#spdV').textContent=(+st.speeds.forward).toFixed(2);$('#trnV').textContent=(+st.speeds.turn).toFixed(2)}
+  renderStack(st);renderLoc(st);renderDiag(st);renderBuild(st);renderRealtime(st);updRun();trackTick(st);
+
+  pullCloud(st);pullEvidence(st);pullOnlineMap(st);
+  $('#cloudInfo').textContent=st.mode==='realtime'?`实时地图 · 已观测 ${num(st.realtime&&st.realtime.observed_m2,1,' m²')} · 近期障碍 5 秒`:st.cloud_n?`实时 ${st.cloud_n} 点 · ${st.cloud_frame}${st.cloud_ttl_s?' · 最近 '+st.cloud_ttl_s+' 秒':''}${S.stat?' · 地图 '+(S.stat.length/3)+' 点':''}`:'实时点云：暂无';
+  S.dirty=true}
+function pullEvidence(st){
+  const e=st.evidence;
+  if(!e){S.evidence=null;S.evidenceRev=-1;S.evidencePending=-1;return}
+  if(document.hidden||!$('#lyLive').checked||e.rev===S.evidenceRev||e.rev===S.evidencePending)return;
+  S.evidencePending=e.rev;const session=S.session;
+  const im=new Image();
+  im.onload=()=>{if(S.session!==session||S.evidencePending!==e.rev)return;
+    S.evidence={img:im,...e};S.evidenceRev=e.rev;S.evidencePending=-1;S.dirty=true};
+  im.onerror=()=>{if(S.evidencePending===e.rev)S.evidencePending=-1};
+  im.src='/api/evidence.png?rev='+e.rev;
+}
+async function pullCloud(st){
+  const want=$('#lyLive').checked;
+  if(!want||document.hidden||st.cloud_rev===S.liveRev||performance.now()-S.liveAt<2000)return;      // one 4.8 MB body at most every 2 s, never in a hidden tab
+  S.liveAt=performance.now();
+  const session=S.session;try{const c=await bin('/api/cloud?max=400000');if(S.session!==session)return;S.live=c.pts;S.liveRev=c.rev;
+    if(!S.autoFit&&c.pts.length>=9000){S.autoFit=true;if(S.view==='3d'&&GL.ok)GL.fit();else fitView()}       // first real picture of this run: look at it
+    else if(S.view==='3d'&&GL.ok&&S.glRange!==Math.floor(c.pts.length/60000)){S.glRange=Math.floor(c.pts.length/60000);GL.range()}
+    S.dirty=true}catch(e){}}
+
+/* ---------- 当前页面的实时导航 ---------- */
+const RT_REASON={ready_for_observation:'等待操作，扫描持续更新地图。',planner_approved:'规划检查通过，正在前往目标。',checking_known_reachable_goal:'正在检查目标。',arrived:'已到达目标。',user_pause:'自动任务已暂停。',user_stop:'自动任务已停止。',user_manual:'已切换到手动遥控。',web_lease_expired:'控制页面失联，自动任务已暂停。',pose_scan_or_task_stale:'定位、扫描或任务反馈过期，已暂停。',no_reachable_frontier:'暂无安全可达前沿，可遥控补扫后再试。',target_not_known_free_or_too_close_to_boundary:'目标需要在已观测空闲区内，并留出机身空间。'};
+function resetSessionView(session){
+  S.session=session;S.online=null;S.onlineRev=-1;S.onlinePending=null;S.evidence=null;S.evidenceRev=-1;S.evidencePending=-1;
+  S.live=null;S.liveRev=-1;S.track=null;S.poseFrames=[];S.rtTarget=null;S.goal=null;S.init=null;S.alignRequestId=null;S.alignSending=false;
+  S.cam={cx:0,cy:0,s:40,angle:0};S.autoFit=false;S.fitted=false;clearKeys();endTool();
+  $('#poseV').textContent='—';$('#relocBtn').disabled=true;S.dirty=true;
+}
+function pullOnlineMap(st){
+  const m=st.live_map;if(st.mode!=='realtime'||!m)return;
+  const key=st.session_id+':'+m.rev;if(S.onlineRev===key||S.onlinePending===key)return;
+  S.onlinePending=key;const session=S.session,im=new Image();
+  im.onload=()=>{if(S.session!==session||S.onlinePending!==key)return;S.online={img:im,...m};S.onlineRev=key;S.onlinePending=null;S.dirty=true;if(!S.autoFit&&st.realtime&&st.realtime.known_cells>200){S.autoFit=true;fitView()}};
+  im.onerror=()=>{if(S.onlinePending===key)S.onlinePending=null};im.src='/api/live-map.png?rev='+m.rev;
+}
+async function rtCommand(action,extra={}){try{if(['point','explore'].includes(action))await api('/api/realtime/heartbeat',{client:S.rtClient});await api('/api/realtime',{action,client:S.rtClient,...extra})}catch(e){fail(e)}}
+function leaveRealtimeView(){if(S.mode==='realtime'&&S.st&&S.st.realtime&&S.st.realtime.control_client===S.rtClient)rtCommand('pause');clearKeys()}
+$$('#rtMethod button').forEach(b=>b.onclick=()=>{S.rtControl=b.dataset.rt;clearKeys();endTool();S.lastTeleTab=null;if(S.mode==='realtime')rtCommand(S.rtControl==='manual'?'manual':'pause');placeTele();renderRealtime(S.st)});
+$('#rtPick').onclick=()=>S.tool==='rtPoint'?endTool():startTool('rtPoint');
+$('#rtClear').onclick=()=>{S.rtTarget=null;endTool();renderRealtime(S.st);S.dirty=true};
+$('#rtGo').onclick=()=>S.rtTarget&&rtCommand('point',S.rtTarget);
+$('#rtExplore').onclick=()=>rtCommand('explore');$('#rtPause').onclick=()=>rtCommand('pause');$('#rtSave').onclick=()=>rtCommand('save');
+function renderRealtime(st){
+  if(!st)return;const active=st.mode==='realtime',rt=active?st.realtime:null;
+  $$('#rtMethod button').forEach(b=>b.classList.toggle('on',b.dataset.rt===S.rtControl));
+  $('#rtExecute').hidden=S.rtControl==='manual';
+  $('#rtGo').hidden=S.rtControl!=='point';$('#rtExplore').hidden=S.rtControl!=='explore';$('#rtPause').hidden=S.rtControl==='manual';
+  $('#rtPointBox').hidden=S.rtControl!=='point';$('#rtExploreBox').hidden=S.rtControl!=='explore';$('#rtManualNote').hidden=S.rtControl!=='manual';
+  $('#rtStatus').textContent=rt&&!st.pose?'等待本轮定位':rt?({manual:'手动待命',point:'单点导航',explore:'自动前沿探索',paused:'已暂停',blocked:'暂无可达目标',complete:'已到达'})[rt.mode]||rt.mode:active?'等待定位与观测':'等待启动实时导航';
+  $('#rtSw').className='sw '+(rt&&rt.healthy?'ok':'warn');$('#rtReason').textContent=rt?(RT_REASON[rt.reason]||rt.reason):'在上方系统卡片启动实时导航。';
+  $('#rtTarget').textContent=S.rtTarget?fx(S.rtTarget)+(S.rtTarget.yaw==null?'': ' '+deg(S.rtTarget.yaw)):'未选择';$('#rtClear').hidden=!S.rtTarget;$('#rtClear').disabled=!!(rt&&rt.mode==='point'&&rt.phase!=='idle');$('#rtPick').hidden=!!S.rtTarget;$('#rtPick').disabled=!rt;$('#rtGo').disabled=!rt||!rt.healthy||!S.rtTarget;$('#rtExplore').disabled=!rt||!rt.healthy;$('#rtPause').disabled=!active;$('#rtSave').disabled=!rt;
+  const notice=$('#rtNotice');notice.hidden=!(rt&&rt.error);notice.textContent=rt?(RT_REASON[rt.error]||rt.error||''):'';
+  $('#rtLoc').textContent=active&&st.pose&&st.loc?({OK:'正常',DEGRADED:'偏低',LOST:'丢失'})[st.loc.state]:'等待本轮定位';
+  $('#rtPose').textContent=active&&st.pose?fx(st.pose)+' '+deg(st.pose.th):'—';$('#rtArea').textContent=num(rt&&rt.observed_m2,1,' m²');$('#rtFrontiers').textContent=rt?rt.frontiers.length:0;$('#rtRemaining').textContent=num(active&&st.nav?st.nav.remaining_m:null,1,' m');$('#rtSaved').textContent=rt&&rt.saved?'快照：'+rt.saved:'';
+  S.dirty=true;
+}
+setInterval(()=>{if(S.mode==='realtime'&&S.stage==='realtime'&&!document.hidden)api('/api/realtime/heartbeat',{client:S.rtClient}).catch(()=>{})},800);
+// Pause when the page goes away (closed/hidden); NOT on mere focus loss (2026-11-12): clicking the Gazebo window must not stop the task. Held
+// manual keys are still released on blur (clearKeys below) and the 3 s heartbeat lease still pauses a page that stopped talking.
+addEventListener('pagehide',leaveRealtimeView);document.addEventListener('visibilitychange',()=>{if(document.hidden)leaveRealtimeView()});
+
+/* ---------- 建图页 ---------- */
+function renderBuild(st){
+  $('#bMode').textContent=({map:'建图',nav:'导航',idle:'未启动'})[st.mode];
+  $('#bCloud').textContent=st.cloud_n?`${st.cloud_n} 点`:'暂无（等雷达）';$('#bRun').textContent=st.run||'—';
+  $('#bNote').textContent='固定地图仿真：使用 internship 的 world 与 Go2 模型。采用真实对角trot步态；Mid360 随机身运动并按安装外参模拟视场，网页 3D 点云暂为空。默认由 Leg-KILO 使用仿真点云和 IMU 定位。';
+  $('#trackCard').hidden=!!st.external_slam;
+  $('#finishNote').textContent=st.external_slam?'保存前让狗停稳，并保持外部算法运行。这里会导出它当前的完整地图，生成可在本项目使用的2D图和3D点云；停止本控制台不会停止外部算法。回环地图暂不保存示教路线，可使用航点任务。':'保存前让狗停稳。这会停止本次运行并生成2D地图和3D点云，进度显示在「系统」卡片。生成好后到「2 定位」页选这张图启动导航。';
+  const mh=st.map_health,he=$('#mapHealth');
+  he.hidden=!(mh&&mh.n);
+  if(mh&&mh.n){he.className='alert '+(mh.bad?'bad':'');he.style.flexDirection='column';he.style.alignItems='flex-start';
+    he.innerHTML=(mh.bad?'<b>⚠ 这次建图可能已经坏了</b>':'<b>ⓘ 建图中出现了异常</b>')+'<span>'+mh.items.map(i=>esc(i.text)).join('<br>')+'</span>'
+      +(mh.bad?'<span>定位算法的位姿跳过，<b>从那一刻起建的图会歪、重影，甚至不再增长</b>。建议：现在「停止」（不保存），狗站稳不动，重新启动建图。</span>':'<span>IMU 断过：之后如果出现位姿跳变，这张图就不能用了。留意这里。</span>')}
+  $('#motionWarn').hidden=st.simulation||st.enable_motion;
+  $('#speedNote').textContent=`默认 = 上限（speeds.yaml）：前进 ${st.speeds.forward}、后退 ${st.speeds.back}、横移 ${st.speeds.side} m/s，转向 ${st.speeds.turn} rad/s。滑块只能调低。`;
+  $('#teleSafe').innerHTML='<b>手动遥控不受限制，没有防撞</b>（建图和导航中都一样，只有最高速度、狗故障、松键即停）；导航中接手遥控前先「结束」任务。<b>遥控器永远是真正的急停</b>，请拿在手里。';
+  $('#spd').max=st.speeds.forward;$('#trn').max=st.speeds.turn}
+$('#saveBtn').onclick=()=>{const n=$('#saveName').value.trim();if(!n)return toast('请填写地图名');
+  const st=S.st,has=st&&st.track_n>5&&!st.external_slam;
+  $('#finStopInfo').textContent=st&&st.external_slam?'这会停止本控制台的运行，并导出外部算法当前的完整地图；外部算法会继续运行。':'这会停止整个运行（等同 Ctrl-C）。';
+  $('#finName').textContent=n;$('#finRoute').checked=!!has;$('#finRoute').disabled=!has;$('#finRouteName').value=n+'_route';
+  $('#finRouteRow').hidden=!has||!$('#finRoute').checked;
+  const mhs=S.st&&S.st.map_health&&S.st.map_health.bad;
+  $('#finWarn').hidden=!mhs;if(mhs)$('#finWarn').textContent='⚠ 这次建图中位姿跳变过（'+S.st.map_health.first.text+'）：保存出来的地图很可能是歪的，甚至保存失败。建议取消，停止后重做。';
+  $('#finInfo').textContent=st&&st.external_slam?'外部地图经过回环修正，当前只保存地图。之后可在任务页设置航点；暂不保存示教路线。':has?`已记录路径 ${S.track?plenPts(S.track.path).toFixed(1):'?'} m，${st.marks_n} 个停靠点。路线会跟着地图保存在 maps/${n}/routes/。`:'还没有记录到路径（先遥控走一段）。';
+  $('#finModal').hidden=false};
+$('#finRoute').onchange=()=>{$('#finRouteRow').hidden=!$('#finRoute').checked};
+$('#finNo').onclick=()=>$('#finModal').hidden=true;
+$('#finYes').onclick=async()=>{const n=$('#saveName').value.trim(),route=$('#finRoute').checked&&!$('#finRoute').disabled?$('#finRouteName').value.trim():'';
+  $('#finModal').hidden=true;
+  try{await api('/api/map/finish',{name:n,route});banner('已发出停止。后台正在生成地图「'+n+'」'+(route?'和示教路线':'')+'，进度在「系统」卡片；生成好后到「2 定位」选这张图启动导航。');setTimeout(()=>banner(''),6000)}catch(e){fail(e)}};
+const plenPts=p=>p.reduce((a,q,i)=>i?a+Math.hypot(q[0]-p[i-1][0],q[1]-p[i-1][1]):0,0);
+$('#trMark').onclick=async()=>{try{const r=await api('/api/route/mark',{});toast('已标记停靠点 P'+r.marks)}catch(e){fail(e)}};
+let trAt=0;
+async function trackTick(st){if(st.mode!=='map'||alignmentPending(st)){S.track=null;return;}
+  $('#trLen').textContent=S.track?plenPts(S.track.path).toFixed(1)+' m':'—';$('#trMarks').textContent=st.marks_n;
+  if(performance.now()-trAt<1000)return;trAt=performance.now();
+  try{const session=S.session,tr=await api('/api/track');if(session===S.session&&tr.session_id===session&&tr.alignment_request_id===(S.st.alignment||{}).request_id&&!alignmentPending(S.st)){S.track=tr;S.dirty=true}}catch(e){}}
+
+/* ---------- 系统：启动 / 停止栈（网页自己管，不用再敲 launch） ----------
+   The page decides WHAT to start: 1 建图/建图 starts mapping, 2 定位 and 3 任务 start navigation (with the map chosen here or in the
+   map list), 1 建图/修图 needs nothing. When the running stack is not the one this page needs, the card says so and offers Stop. */
+let lastStackState='',lastFinish='';
+const MODE_TXT={map:'建图',nav:'导航',realtime:'实时导航'};
+function renderStack(st){
+  const bar=$('#stackBar');bar.hidden=false;const k=st.stack,want=wantMode(),hint=$('#stHint');
+  const fin=st.finish,fe=$('#stFinish');
+  fe.hidden=!fin;if(fin){fe.className='alert'+(fin.state==='done'?' ok':fin.state==='failed'?' bad':'');
+    fe.innerHTML=`<span>${fin.state==='done'?'✓':fin.state==='failed'?'⚠':'…'}</span><span>${fin.state==='done'?'地图「'+esc(fin.name)+'」已生成，可以在「2 定位」选它启动导航。':fin.state==='failed'?'地图「'+esc(fin.name)+'」生成失败：'+esc(fin.last):'正在生成地图「'+esc(fin.name)+'」：'+esc(fin.last)}</span>`;
+    const key=fin.name+fin.state;if(key!==lastFinish){lastFinish=key;if(fin.state!=='running')loadMaps().catch(()=>{})}}
+  if(!st.managed){$('#stSw').className='sw ok';$('#stTxt').textContent='由终端启动（停止请在那个终端按 Ctrl-C）';$('#stIdle').hidden=true;$('#stRun').hidden=true;$('#stTail').hidden=true;
+    hint.hidden=!(want&&running()&&want!==S.mode);hint.textContent=`这一页需要${MODE_TXT[want]||''}模式；现在是${MODE_TXT[S.mode]||''}，请在启动的终端里换。`;return}
+  const state=k.state,run=state==='starting'||state==='running'||state==='stopping';
+  $('#stSw').className='sw '+({idle:'off',starting:'warn',running:'ok',stopping:'warn',failed:'bad'})[state];
+  $('#stTxt').textContent=({idle:'未启动',starting:'启动中…模型、控制器、站立与步态交接',running:'运行中 · '+((MODE_TXT[k.mode]||k.mode)+(k.map?' · '+k.map:''))+(k.enable_motion?' · 仿真运动':' · 仿真静止'),stopping:'正在停止…',failed:'启动失败 / 已退出（退出码 '+k.returncode+'）'})[state];
+  $('#stIdle').hidden=run||!want;$('#stRun').hidden=!run;$('#stStop').disabled=state==='stopping';
+  $('#stMapRow').hidden=want!=='nav';
+  $('#stStart').textContent=want==='realtime'?'▶ 启动实时导航':'▶ 打开 Gazebo 并启动导航';
+  let h='';
+  if(!want)h=run?'修图只改地图文件，不需要系统；改的是正在导航的图时，要重新启动导航才生效。':'修图只改地图文件，不需要启动系统。';
+  else if(run&&k.mode&&k.mode!==want)h=`当前是${MODE_TXT[k.mode]||k.mode}。先停止当前会话，再在这里启动${MODE_TXT[want]||want}。`;
+  hint.hidden=!h;hint.textContent=h;
+  const tail=$('#stTail');tail.hidden=!(state==='starting'||state==='failed'||state==='stopping'||k.killed);tail.textContent=(k.killed?'（55 s 没退出，已 SIGKILL：请按操作步骤「停止」一节检查残留进程和 runs/.go2.lock）\n':'')+k.tail.join('\n');
+  if(lastStackState!==state){lastStackState=state;loadMaps().then(()=>{if(S.mode!=='realtime'&&(state==='running'||state==='starting'))viewMap(S.loaded||S.viewMap)}).catch(()=>{})}}
+$('#stStart').onclick=()=>{
+  const mode=wantMode(),motion=true,map=$('#stMap').value;
+  if(!mode)return;
+  if(['nav','realtime'].includes(mode)&&!map)return toast('先选一张地图');
+  const go=async()=>{try{await api('/api/stack/start',{mode,map,enable_motion:motion});toast('已启动'+MODE_TXT[mode]+'，等待就绪…')}catch(e){fail(e)}};
+  go()};
+$('#stStop').onclick=()=>confirmBox(isMap()?'停止建图？这样停止不会保存地图——要保存请用「结束并保存」。':'停止导航？正在执行的任务会先被取消。',async()=>{try{await api('/api/stack/stop',{});toast('已发出停止')}catch(e){fail(e)}});
+
+/* ---------- 遥控 ---------- */
+$$('#ctlSrc button').forEach(b=>b.onclick=()=>{S.ctl=b.dataset.c;$$('#ctlSrc button').forEach(x=>x.classList.toggle('on',x===b));$('#kbBox').hidden=S.ctl!=='kb';$('#gpBox').hidden=S.ctl!=='gp'});
+$('#spd').oninput=e=>$('#spdV').textContent=(+e.target.value).toFixed(2);
+$('#trn').oninput=e=>$('#trnV').textContent=(+e.target.value).toFixed(2);
+const taskActive=()=>{const t=S.st&&S.st.task;return !!t&&(t.mode==='once'||t.mode==='loop')};
+// One teleop card: task workspace owns a dedicated fourth tab; other workspaces reuse it.
+// Existing teleOn, key release, speed limits and command/feedback watchdogs remain the control authority.
+let teleFolded=null;
+function placeTele(){const c=$('#teleCard'),id=S.stage+'.'+S.sub[S.stage],tab=$(`.tab[data-t="${id}"]`);
+  c.hidden=!tab||id==='build.edit'||(S.stage==='task'&&id!=='task.tele')||(id==='realtime.control'&&S.rtControl!=='manual');if(c.hidden)return;
+  if(id==='build.map')$('#bStatusCard').insertAdjacentElement('afterend',c);else tab.appendChild(c);
+  $('#teleN').hidden=!['build.map','realtime.control'].includes(id);
+  if(teleFolded===null||S.lastTeleTab!==id){teleFolded=!(id==='build.map'||id==='realtime.control'||id==='task.tele');S.lastTeleTab=id}
+  $('#teleBody').hidden=teleFolded;$('#teleFold').textContent=teleFolded?'展开':'收起';
+  c.classList.toggle('lock',!running()||taskActive())}
+$('#teleFold').onclick=()=>{teleFolded=!teleFolded;clearKeys();placeTele()};
+const teleOn=()=>(S.mode!=='realtime'||(S.st&&S.st.realtime&&S.st.realtime.mode==='manual'))&&!$('#teleCard').hidden&&!teleFolded&&running()&&!taskActive();
+function setKey(k,down){if(k.length!==1||!'qweasd'.includes(k))return;S.keys[k]=down;$$(`.k[data-k=${k}]`).forEach(b=>b.classList.toggle('down',down))}
+function clearKeys(){S.keys={};$$('.k').forEach(b=>b.classList.remove('down'))}
+addEventListener('keydown',e=>{
+  if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)&&e.target.type!=='range'&&e.target.type!=='checkbox')return;
+  const k=e.key.toLowerCase();
+  if(e.key==='Escape')return doEstop();
+  if(k===' '){clearKeys();e.preventDefault();return}
+  if(k==='p'&&S.stage==='task'&&S.sub.task==='wp'){$('#wpHere').click();return}
+  if(S.ctl==='kb'&&teleOn())setKey(k,true)});
+addEventListener('keyup',e=>setKey(e.key.toLowerCase(),false));
+addEventListener('blur',clearKeys);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)clearKeys()});
+$$('.k').forEach(b=>{const k=b.dataset.k;b.onpointerdown=()=>teleOn()&&setKey(k,true);b.onpointerup=b.onpointerleave=()=>setKey(k,false)});
+let gpIdx=null;
+addEventListener('gamepadconnected',e=>{gpIdx=e.gamepad.index;$('#gpState').textContent='已连接：'+e.gamepad.id.slice(0,38)});
+addEventListener('gamepaddisconnected',()=>{gpIdx=null;$('#gpState').textContent='手柄已断开 — 请重新连接'});
+function gpVel(){const g=gpIdx!=null&&navigator.getGamepads()[gpIdx];if(!g)return null;
+  const dz=v=>Math.abs(v)<.12?0:v,lx=dz(g.axes[0]),ly=dz(g.axes[1]),rx=dz(g.axes[2]??0);
+  $('#gpL').style.transform=`translate(${lx*18}px,${ly*18}px)`;$('#gpR').style.transform=`translate(${rx*18}px,0)`;
+  return{vx:-ly,vy:-lx,wz:-rx}}
+function teleVel(){
+  if(!teleOn()||Date.now()-S.estopAt<1500)return{vx:0,vy:0,wz:0};
+  const sp=+$('#spd').value,tr=+$('#trn').value;
+  const back=Math.min(sp,S.st?S.st.speeds.back:.3),side=Math.min(sp,S.st?S.st.speeds.side:.2);
+  if(S.ctl==='kb'){const k=S.keys;return{vx:(k.w?1:0)*sp-(k.s?1:0)*back,vy:((k.q?1:0)-(k.e?1:0))*side,wz:((k.a?1:0)-(k.d?1:0))*tr}}
+  const g=gpVel();if(!g)return{vx:0,vy:0,wz:0};return{vx:g.vx>0?g.vx*sp:g.vx*back,vy:g.vy*side,wz:g.wz*tr}}
+let moving=false,warned=0;
+setInterval(async()=>{const v=teleVel(),mv=v.vx||v.vy||v.wz;
+  if(mv){moving=true;try{await api('/api/teleop',v)}catch(e){if(Date.now()-warned>5000){warned=Date.now();toast('遥控失败：'+e.message)}}}
+  else if(moving){moving=false;api('/api/teleop',{vx:0,vy:0,wz:0}).catch(()=>{});setTimeout(()=>api('/api/teleop',{vx:0,vy:0,wz:0}).catch(()=>{}),120)}},100);
+
+/* ---------- 急停（软） ---------- */
+async function doEstop(){S.estopAt=Date.now();clearKeys();$('#estop').classList.add('hit');
+  try{const r=await api('/api/estop',{});banner('软急停已发送：任务取消、速度置零'+(r.dev_stop?'、已调 /dev_stop':'（/dev_stop 不可用）')+'。真正的急停是遥控器。',true)}
+  catch(e){banner('软急停发送失败：'+e.message+' —— 用遥控器急停！',true)}
+  setTimeout(()=>{$('#estop').classList.remove('hit');banner('')},3500)}
+$('#estop').onclick=doEstop;
+
+/* ---------- 画布 ---------- */
+const cv=$('#cv'),cx=cv.getContext('2d');let W=0,H=0,DPR=1;
+function resize(){const r=cv.getBoundingClientRect();DPR=devicePixelRatio||1;W=r.width;H=r.height;cv.width=W*DPR;cv.height=H*DPR;cx.setTransform(DPR,0,0,DPR,0,0);S.dirty=true;if(!S.fitted&&W>50&&S.meta){S.fitted=true;fitView()}}
+addEventListener('resize',resize);
+
+/* ---------- 3D 点云（WebGL）：透视 + 旋转 / 缩放 / 平移，按高度着色，远处淡出，点按距离变大 ----------
+   The page used to draw the cloud as 2 px squares in array order on a 2D canvas, with a fixed iso projection and the colour range
+   stretched by a few outliers (z -14 m in a real map): a small blue blob. Now: a real camera, depth test, colour range from the
+   2..98 percentiles, point size = voxel size in world units (so a wall stays a wall when you zoom). Falls back to the old drawing
+   when WebGL is not available. */
+const GL={ok:false,gl:null,pt:null,ln:null,bufs:{},cam:{yaw:-0.8,pitch:0.85,dist:30,tx:0,ty:0,tz:0},fov:0.87,
+  zlo:-0.3,zhi:2.5,floor:0,mvp:new Float32Array(16),vp:{w:1,h:1},voxel:0.05,refs:{}};
+GL.init=function(){
+  try{
+    const c=$('#gl'),gl=c.getContext('webgl',{antialias:false,alpha:false,preserveDrawingBuffer:false});if(!gl)return;
+    const sh=(t,src)=>{const o=gl.createShader(t);gl.shaderSource(o,src);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(o));return o};
+    const prog=(vs,fs)=>{const q=gl.createProgram();gl.attachShader(q,sh(gl.VERTEX_SHADER,vs));gl.attachShader(q,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(q);
+      if(!gl.getProgramParameter(q,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(q));return q};
+    // Colour (user's choice 2026-10-27, one design, no alternatives: "rainbow colours in layers, plus pale sand"): the floor (< ~15 cm
+    // above the densest z layer) is pale sand and recedes into the paper; above it flat LAYERS of bandH metres, each one a colour of
+    // the turbo rainbow (blue at the bottom ... red at the top).
+    this.pt=prog(`attribute vec3 p;uniform mat4 mvp;uniform float size;uniform float flo;uniform float zcut;uniform float above;uniform float grey;uniform float bandH;uniform float nb;
+      uniform vec3 c0;
+      varying vec3 col;varying float w;
+      vec3 turbo(float x){x=clamp(x,0.,1.);vec4 v4=vec4(1.,x,x*x,x*x*x);vec2 v2=v4.zw*v4.z;
+        return vec3(dot(v4,vec4(0.13572138,4.61539260,-42.66032258,132.13108234))+dot(v2,vec2(-152.94239396,59.28637943)),
+                    dot(v4,vec4(0.09140261,2.19418839,4.84296658,-14.18503333))+dot(v2,vec2(4.27729857,2.82956604)),
+                    dot(v4,vec4(0.10667330,12.64194608,-60.58204836,110.36276771))+dot(v2,vec2(-89.90310912,27.34824973)));}
+      // sand floor, then flat rainbow LAYERS of bandH metres: layer k gets turbo(k/(nb-1)), so a table top, a chair back and a wall each read as a layer
+      vec3 bands(float h){float k=floor(max(h-.15,0.)/bandH);float t=nb>1.?clamp(k/(nb-1.),0.,1.):0.;return mix(c0,turbo(.10+.85*t),smoothstep(.10,.15,h));}   // .10..95 of turbo: its two ends are nearly black
+      void main(){gl_Position=mvp*vec4(p,1.);w=gl_Position.w;gl_PointSize=clamp(size/max(w,.1),2.,22.);
+        float h=p.z-flo;
+        vec3 k=bands(h);
+        col=mix(k,vec3(.42,.47,.56),grey);
+        if(p.z>zcut){if(above>.5)col=mix(col,vec3(.84,.25,.18),.6);else gl_Position=vec4(2.,2.,2.,1.);}}`,   // 3D: above the slice = red (box ticked) or cut away (default)
+      `precision mediump float;varying vec3 col;varying float w;uniform vec3 bg;uniform float fogN;uniform float fogF;
+      void main(){vec2 c=gl_PointCoord-.5;if(dot(c,c)>.25)discard;
+        float f=clamp((w-fogN)/(fogF-fogN),0.,.6);gl_FragColor=vec4(mix(col,bg,f),1.);}`);
+    this.ln=prog(`attribute vec3 p;uniform mat4 mvp;void main(){gl_Position=mvp*vec4(p,1.);}`,`precision mediump float;uniform vec4 color;void main(){gl_FragColor=color;}`);
+    // Eye-dome lighting: a pixel is darkened by how much CLOSER its 8 neighbours are (log depth), so the edge where an object
+    // stands in front of a wall gets a dark outline; sparse points with nothing in front of them are left alone.
+    this.edl=prog(`attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}`,
+      `precision highp float;uniform sampler2D tc;uniform sampler2D td;uniform vec2 px;uniform float near;uniform float far;uniform float strength;uniform float radius;
+      float lin(float z){return 2.*near*far/(far+near-(2.*z-1.)*(far-near));}
+      float occ(vec2 uv,vec2 o,float d){float z=texture2D(td,uv+o*px*radius).r;if(z>=.9999)return 0.;return max(0.,d-log2(lin(z))-.03);}   // < ~2 % nearer = the same surface seen at a slant, not an edge
+      void main(){vec2 uv=gl_FragCoord.xy*px;vec4 c=texture2D(tc,uv);float z=texture2D(td,uv).r;if(z>=.9999){gl_FragColor=vec4(c.rgb,1.);return;}
+        float d=log2(lin(z));float r=occ(uv,vec2(1.,0.),d)+occ(uv,vec2(-1.,0.),d)+occ(uv,vec2(0.,1.),d)+occ(uv,vec2(0.,-1.),d)
+          +occ(uv,vec2(.7,.7),d)+occ(uv,vec2(-.7,.7),d)+occ(uv,vec2(.7,-.7),d)+occ(uv,vec2(-.7,-.7),d);
+        gl_FragColor=vec4(c.rgb*exp(-r*strength),1.);}`);
+    this.gl=gl;this.bufs={live:gl.createBuffer(),stat:gl.createBuffer(),grid:gl.createBuffer(),quad:gl.createBuffer()};this.n={live:0,stat:0};
+    gl.bindBuffer(gl.ARRAY_BUFFER,this.bufs.quad);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+    this.depthExt=!!gl.getExtension('WEBGL_depth_texture');this.fbo=null;this.ok=true;
+  }catch(e){this.ok=false;console.warn('WebGL unavailable, using the 2D drawing:',e.message)}};
+// off-screen colour + depth for the outline pass; false = not available (the picture is then drawn without outlines)
+GL.ensureFbo=function(pw,ph){const gl=this.gl;if(!this.depthExt)return false;if(this.fbo&&this.fw===pw&&this.fh===ph)return true;
+  if(this.fbo){gl.deleteFramebuffer(this.fbo);gl.deleteTexture(this.ct);gl.deleteTexture(this.dt);this.fbo=null}
+  const tex=(fmt,type)=>{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,fmt,pw,ph,0,fmt,type,null);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);return t};
+  this.ct=tex(gl.RGBA,gl.UNSIGNED_BYTE);this.dt=tex(gl.DEPTH_COMPONENT,gl.UNSIGNED_INT);
+  const f=gl.createFramebuffer();gl.bindFramebuffer(gl.FRAMEBUFFER,f);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,this.ct,0);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.TEXTURE_2D,this.dt,0);
+  const ok=gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+  if(!ok){this.depthExt=false;return false}this.fbo=f;this.fw=pw;this.fh=ph;return true};
+GL.upload=function(name,arr){const gl=this.gl;gl.bindBuffer(gl.ARRAY_BUFFER,this.bufs[name]);
+  gl.bufferData(gl.ARRAY_BUFFER,arr&&arr.length?arr:new Float32Array(0),gl.STATIC_DRAW);this.n[name]=arr?Math.floor(arr.length/3):0;this.refs[name]=arr};
+// percentile of a strided sample (robust to the few stray points a drifting map has)
+function pctl(arr,off,q,maxN=20000){const n=Math.floor(arr.length/3),st=Math.max(1,Math.floor(n/maxN)),v=[];for(let i=0;i<n;i+=st)v.push(arr[3*i+off]);v.sort((a,b)=>a-b);return v.length?v[Math.min(v.length-1,Math.floor(q*v.length))]:0}
+GL.dataset=function(){return S.live&&S.live.length>=300?S.live:(S.stat&&S.stat.length?S.stat:null)};
+// The floor = the most populated 5 cm layer of z among the lower 60 % of the points (indoors the densest horizontal layer is the floor).
+// The colour bands are measured from it; before, the 2 % percentile was used, which on a real cloud sits below the floor and turned
+// the floor into "low objects".
+GL.floorLevel=function(d){const n=Math.floor(d.length/3),st=Math.max(1,Math.floor(n/40000)),z=[];for(let i=0;i<n;i+=st)z.push(d[3*i+2]);z.sort((a,b)=>a-b);
+  if(z.length<20)return z.length?z[0]:0;const lo=z[Math.floor(.01*z.length)],hi=z[Math.floor(.6*z.length)],bin=.05,nb=Math.max(1,Math.ceil((hi-lo)/bin)+1),h=new Array(nb).fill(0);
+  for(const v of z){if(v>=lo&&v<=hi)h[Math.min(nb-1,Math.floor((v-lo)/bin))]++}
+  let b=0;for(let k=1;k<nb;k++)if(h[k]>h[b])b=k;return lo+(b+.5)*bin};
+GL.range=function(){const d=this.dataset();if(!d)return;let lo=pctl(d,2,.02),hi=pctl(d,2,.98);if(hi-lo<1.5){const m=(hi+lo)/2;lo=m-.75;hi=m+.75}this.zlo=lo;this.zhi=hi;this.floor=this.floorLevel(d)};
+GL.fit=function(){const d=this.dataset(),c=this.cam;
+  if(!d){const p=S.st&&S.st.pose;c.tx=p?p.x:0;c.ty=p?p.y:0;c.tz=0;c.dist=14;this.floor=0;return}
+  this.range();
+  const x0=pctl(d,0,.02),x1=pctl(d,0,.98),y0=pctl(d,1,.02),y1=pctl(d,1,.98);
+  c.tx=(x0+x1)/2;c.ty=(y0+y1)/2;c.tz=(this.zlo+this.zhi)/2;
+  const r=.5*Math.hypot(x1-x0,y1-y0,this.zhi-this.zlo);c.dist=Math.max(4,r/Math.sin(this.fov/2)*1.3)};
+GL.preset=function(k){const c=this.cam;if(k==='top'){c.yaw=-Math.PI/2;c.pitch=1.5}else{c.yaw=-0.8;c.pitch=0.85}};
+function m4mul(a,b){const o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++){let t=0;for(let k=0;k<4;k++)t+=a[k*4+r]*b[c*4+k];o[c*4+r]=t}return o}
+GL.matrix=function(){const c=this.cam,{w,h}=this.vp,cp=Math.cos(c.pitch),sp=Math.sin(c.pitch),cy=Math.cos(c.yaw),sy=Math.sin(c.yaw);
+  const e=[c.tx+c.dist*cp*cy,c.ty+c.dist*cp*sy,c.tz+c.dist*sp];
+  let f=[c.tx-e[0],c.ty-e[1],c.tz-e[2]];const fl=Math.hypot(...f);f=f.map(v=>v/fl);
+  let r=[f[1],-f[0],0];const rl=Math.hypot(...r)||1;r=r.map(v=>v/rl);
+  const u=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]];
+  const V=new Float32Array([r[0],u[0],-f[0],0, r[1],u[1],-f[1],0, r[2],u[2],-f[2],0, -(r[0]*e[0]+r[1]*e[1]+r[2]*e[2]),-(u[0]*e[0]+u[1]*e[1]+u[2]*e[2]),(f[0]*e[0]+f[1]*e[1]+f[2]*e[2]),1]);
+  const near=Math.max(.05,c.dist*.01),far=c.dist*40+200,t=1/Math.tan(this.fov/2),a=w/h;
+  const P=new Float32Array([t/a,0,0,0, 0,t,0,0, 0,0,(far+near)/(near-far),-1, 0,0,2*far*near/(near-far),0]);
+  this.right=r;this.up=u;this.fwd=f;this.eye=e;this.mvp=m4mul(P,V)};
+GL.project=function(x,y,z){const m=this.mvp,{w,h}=this.vp;const cx_=m[0]*x+m[4]*y+m[8]*z+m[12],cy_=m[1]*x+m[5]*y+m[9]*z+m[13],cw=m[3]*x+m[7]*y+m[11]*z+m[15];
+  if(cw<=.05)return null;return[(cx_/cw*.5+.5)*w,(1-(cy_/cw*.5+.5))*h]};
+const SAND=[.847,.800,.698];      // the floor: pale sand on the paper
+GL.render=function(zs,zt){
+  const gl=this.gl,c=$('#gl');
+  const pw=Math.max(1,Math.round(W*DPR)),ph=Math.max(1,Math.round(H*DPR));if(c.width!==pw||c.height!==ph){c.width=pw;c.height=ph}
+  this.vp={w:W,h:H};
+  if(this.refs.live!==S.live)this.upload('live',S.live);
+  if(this.refs.stat!==S.stat)this.upload('stat',S.stat);
+  this.matrix();
+  const bg=[.953,.937,.902];      // the page's own paper colour (--paper #f3efe6), as before
+  const useEdl=(+$('#edlK').value)>0&&this.ensureFbo(pw,ph);
+  gl.bindFramebuffer(gl.FRAMEBUFFER,useEdl?this.fbo:null);
+  gl.viewport(0,0,pw,ph);gl.clearColor(bg[0],bg[1],bg[2],1);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.depthMask(true);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+  // ground grid at the floor level, 1 m (5 m when far); drawn without writing depth so the outline pass does not trace it
+  {const cm=this.cam,R=Math.max(10,cm.dist*1.2),step=R>40?5:1,v=[];const x0=Math.floor((cm.tx-R)/step)*step,y0=Math.floor((cm.ty-R)/step)*step,z=this.floor;
+    for(let x=x0;x<=cm.tx+R;x+=step)v.push(x,cm.ty-R,z,x,cm.ty+R,z);for(let y=y0;y<=cm.ty+R;y+=step)v.push(cm.tx-R,y,z,cm.tx+R,y,z);
+    gl.useProgram(this.ln);gl.uniformMatrix4fv(gl.getUniformLocation(this.ln,'mvp'),false,this.mvp);
+    gl.uniform4f(gl.getUniformLocation(this.ln,'color'),.11,.13,.19,.10);
+    gl.bindBuffer(gl.ARRAY_BUFFER,this.bufs.grid);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(v),gl.DYNAMIC_DRAW);
+    const a=gl.getAttribLocation(this.ln,'p');gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,3,gl.FLOAT,false,0,0);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);
+    gl.drawArrays(gl.LINES,0,v.length/3);gl.disable(gl.BLEND);gl.depthMask(true)}
+  gl.useProgram(this.pt);const U=n=>gl.getUniformLocation(this.pt,n);
+  gl.uniformMatrix4fv(U('mvp'),false,this.mvp);
+  const focal=.5*ph/Math.tan(this.fov/2);gl.uniform1f(U('size'),this.voxel*focal*(+$('#ps').value||1.2));
+  gl.uniform1f(U('flo'),this.floor);gl.uniform1f(U('zcut'),zs+zt);gl.uniform1f(U('above'),$('#lyAbove').checked?1:0);
+  const bh=+$('#bandH').value||.3;gl.uniform1f(U('bandH'),bh);gl.uniform1f(U('nb'),Math.max(2,Math.ceil((this.zhi-this.floor-.15)/bh)));
+  gl.uniform3f(U('c0'),SAND[0],SAND[1],SAND[2]);
+  gl.uniform3f(U('bg'),bg[0],bg[1],bg[2]);gl.uniform1f(U('fogN'),this.cam.dist*.9);gl.uniform1f(U('fogF'),this.cam.dist*3.2);
+  const a=gl.getAttribLocation(this.pt,'p');gl.enableVertexAttribArray(a);
+  const draw=(name,grey)=>{if(!this.n[name])return;gl.uniform1f(U('grey'),grey);gl.bindBuffer(gl.ARRAY_BUFFER,this.bufs[name]);gl.vertexAttribPointer(a,3,gl.FLOAT,false,0,0);gl.drawArrays(gl.POINTS,0,this.n[name])};
+  const live=$('#lyLive').checked&&this.n.live>0;
+  if($('#lyStatic').checked&&!hideSaved())draw('stat',live?1:0);       // the saved map's cloud: grey under the live one, in colour when alone
+  if($('#lyLive').checked)draw('live',0);
+  if(useEdl){                                                          // outline pass: colour + depth -> screen
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,pw,ph);gl.disable(gl.DEPTH_TEST);gl.useProgram(this.edl);const E=n=>gl.getUniformLocation(this.edl,n);
+    gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,this.ct);gl.uniform1i(E('tc'),0);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,this.dt);gl.uniform1i(E('td'),1);
+    const cm=this.cam;gl.uniform2f(E('px'),1/pw,1/ph);gl.uniform1f(E('near'),Math.max(.05,cm.dist*.01));gl.uniform1f(E('far'),cm.dist*40+200);
+    gl.uniform1f(E('strength'),+$('#edlK').value);gl.uniform1f(E('radius'),Math.max(1,1.3*DPR));
+    gl.bindBuffer(gl.ARRAY_BUFFER,this.bufs.quad);const q=gl.getAttribLocation(this.edl,'a');gl.enableVertexAttribArray(q);gl.vertexAttribPointer(q,2,gl.FLOAT,false,0,0);gl.drawArrays(gl.TRIANGLES,0,3);
+    gl.activeTexture(gl.TEXTURE0);gl.enable(gl.DEPTH_TEST)}};
+GL.rotate=function(dx,dy){const c=this.cam;c.yaw-=dx*.008;c.pitch=Math.max(.05,Math.min(1.52,c.pitch+dy*.008))};
+GL.pan=function(dx,dy){const c=this.cam,k=c.dist*Math.tan(this.fov/2)*2/Math.max(1,this.vp.h),r=this.right,u=this.up;
+  c.tx+=(-dx*r[0]+dy*u[0])*k;c.ty+=(-dx*r[1]+dy*u[1])*k;c.tz+=(-dx*r[2]+dy*u[2])*k};
+GL.zoom=function(f){this.cam.dist=Math.max(1.5,Math.min(600,this.cam.dist*f))};
+function toS(x,y,z){
+  if(S.view==='3d'&&GL.ok){const q=GL.project(x,y,z===undefined?GL.floor:z);return q||[-9999,-9999]}
+  z=z||0;const c=S.cam,s=c.s,dx=x-c.cx,dy=y-c.cy;
+  if(S.view==='3d'){const v=S.iso;let a,b;
+    if(v==='top'){a=dx;b=-dy}else if(v==='front'){a=dx;b=-z}else if(v==='side'){a=dy;b=-z}else{a=(dx-dy)*.87;b=-(dx+dy)*.5-z*.9}
+    const k=v==='iso'?s*.8:s;return[W/2+a*k,H/2+(v==='front'||v==='side'?H*.12:0)+b*k]}
+  const a=c.angle||0,co=Math.cos(a),si=Math.sin(a);return[W/2+(co*dx+si*dy)*s,H/2+(si*dx-co*dy)*s]}
+function toW(px,py){const c=S.cam,a=c.angle||0,co=Math.cos(a),si=Math.sin(a),u=(px-W/2)/c.s,v=-(py-H/2)/c.s;
+  return{x:co*u-si*v+c.cx,y:si*u+co*v+c.cy}}
+function hue(z){const t=Math.max(0,Math.min(1,(z+.5)/3.5));return `hsl(${230-t*215},70%,${42+t*4}%)`}
+function fitView(){
+  if(S.mode==='realtime'){const b=S.st&&S.st.realtime&&S.st.realtime.bounds;if(b){S.cam={cx:(b[0]+b[2])/2,cy:(b[1]+b[3])/2,s:Math.max(2,Math.min(W/(b[2]-b[0]+2),H/(b[3]-b[1]+2))),angle:0};S.follow=false;$('#follow').classList.remove('on');S.dirty=true;return}}
+  if(S.view==='3d'&&GL.ok){GL.fit();S.dirty=true;return}
+  let x0,y0,x1,y1;
+  const live=S.live&&S.live.length>=300?S.live:null;
+  if(S.meta&&!(hideSaved()&&live)){const m=S.meta;x0=m.origin[0];y0=m.origin[1];x1=x0+m.width*m.resolution;y1=y0+m.height*m.resolution}
+  else if(live){x0=pctl(live,0,.01);x1=pctl(live,0,.99);y0=pctl(live,1,.01);y1=pctl(live,1,.99)}      // 1..99 %: a few stray points must not shrink the view
+  else{const p=S.st&&S.st.pose;x0=(p?p.x:0)-8;x1=x0+16;y0=(p?p.y:0)-5;y1=y0+10}
+  S.cam={cx:(x0+x1)/2,cy:(y0+y1)/2,s:Math.max(2,Math.min(W/(x1-x0+2),H/(y1-y0+2))),angle:0};S.follow=false;$('#follow').classList.remove('on');S.dirty=true}
+function drawGrid(){const s=S.cam.s,step=s>14?1:s>4?5:10;cx.strokeStyle='rgba(28,34,48,.07)';cx.lineWidth=1;cx.beginPath();
+  const corners=[[0,0],[W,0],[0,H],[W,H]].map(p=>toW(...p)),xs=corners.map(p=>p.x),ys=corners.map(p=>p.y),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  for(let x=Math.floor(x0/step)*step;x<=x1;x+=step){cx.moveTo(...toS(x,y0));cx.lineTo(...toS(x,y1))}
+  for(let y=Math.floor(y0/step)*step;y<=y1;y+=step){cx.moveTo(...toS(x0,y));cx.lineTo(...toS(x1,y))}cx.stroke()}
+function drawGrid3d(){const c=S.cam,R=Math.max(W,H)/c.s*.7,step=R>40?5:1;cx.strokeStyle='rgba(28,34,48,.10)';cx.lineWidth=1;cx.beginPath();
+  const x0=Math.floor((c.cx-R)/step)*step,y0=Math.floor((c.cy-R)/step)*step;
+  for(let x=x0;x<=c.cx+R;x+=step){const a=toS(x,c.cy-R),b=toS(x,c.cy+R);cx.moveTo(a[0],a[1]);cx.lineTo(b[0],b[1])}
+  for(let y=y0;y<=c.cy+R;y+=step){const a=toS(c.cx-R,y),b=toS(c.cx+R,y);cx.moveTo(a[0],a[1]);cx.lineTo(b[0],b[1])}cx.stroke()}
+function polyPts(pts,col,w,dash){if(pts.length<2)return;cx.beginPath();pts.forEach((p,i)=>{const[a,b]=toS(p[0],p[1]);i?cx.lineTo(a,b):cx.moveTo(a,b)});cx.strokeStyle=col;cx.lineWidth=w;cx.lineJoin='round';cx.setLineDash(dash||[]);cx.stroke();cx.setLineDash([])}
+function drawFlag(x,y,th,color,label,o={}){const[sx,sy]=toS(x,y),r=12;
+  if(th!=null){cx.save();cx.globalAlpha=o.alpha??1;cx.translate(sx,sy);cx.rotate((S.view==='slice'?(S.cam.angle||0):0)-(th||0));cx.fillStyle=color;cx.beginPath();cx.moveTo(r+11,0);cx.lineTo(r-1,-6);cx.lineTo(r-1,6);cx.closePath();cx.fill();cx.restore()}
+  cx.save();cx.globalAlpha=o.alpha??1;
+  cx.beginPath();cx.arc(sx,sy,r,0,7);cx.fillStyle=color;cx.fill();cx.lineWidth=o.sel?3:2;cx.strokeStyle=o.sel?'#1c2230':'#fff';cx.stroke();
+  cx.fillStyle='#fff';cx.font='700 12px ui-monospace,monospace';cx.textAlign='center';cx.textBaseline='middle';cx.fillText(label,sx,sy+.5);cx.restore()}
+function drawRobot(p){const[sx,sy]=toS(p.x,p.y),L=Math.max(14,Math.min(40,.55*S.cam.s));const Wd=L*.55;
+  cx.save();cx.translate(sx,sy);cx.rotate(S.view==='3d'&&S.iso!=='top'?0:(S.view==='slice'?(S.cam.angle||0):0)-p.th);
+  cx.beginPath();cx.moveTo(L*.6,0);cx.lineTo(-L*.45,-Wd*.8);cx.lineTo(-L*.25,0);cx.lineTo(-L*.45,Wd*.8);cx.closePath();cx.fillStyle='#e2461f';cx.fill();cx.lineWidth=2;cx.strokeStyle='#fff';cx.stroke();cx.restore()}
+const WPCOL={PENDING:'#8a8f9a',APPROACH:'#2c5fa8',RECOVER:'#c98a0a',ARRIVED:'#0f7a6d',SKIPPED:'#8a63d2',BAD:'#e2461f'};
+const TOOLCOL={rtPoint:'#2c5fa8',wp:'#0f7a6d',pose:'#8a63d2',plE:'#2c5fa8'};
+const TOOLLBL={rtPoint:()=> '',wp:()=>S.wps.length+1,pose:()=>'◎',plE:()=>''};
+let drag=null;
+function drawCloud(pts,mode,zs,zt,color,above){
+  if(!pts||!pts.length)return;
+  if(mode==='slice'){cx.fillStyle=color;const sz=Math.max(2,Math.min(4,S.cam.s*.07));
+    for(let i=0;i<pts.length;i+=3){const z=pts[i+2];if(Math.abs(z-zs)>zt)continue;const[a,b]=toS(pts[i],pts[i+1]);cx.fillRect(a-sz/2,b-sz/2,sz,sz)}
+  }else{const step=Math.max(1,Math.ceil(pts.length/3/70000));
+    for(let i=0;i<pts.length;i+=3*step){const z=pts[i+2];const[a,b]=toS(pts[i],pts[i+1],z);
+      cx.fillStyle=(above&&z>zs+zt&&z<zs+1.2)?'#d6402f':hue(z);cx.fillRect(a,b,2,2)}}}
+
+// The map being built, live (2026-10-27): the live cloud's Z slice rasterised into 5 cm cells and drawn like the saved map (ink walls
+// on paper) instead of scattered teal dots. A cell counts when >= 2 voxels of its column are inside the band, so single stray points
+// (dust, a person passing) do not draw. Recomputed only when the cloud or the slice changes.
+const RAS={key:'',cv:null,x0:0,y1:0,w:0,h:0,res:.05};
+function rasterLive(zs,zt){
+  const pts=S.live,key=S.liveRev+'|'+zs+'|'+zt+'|'+(pts?pts.length:0);if(RAS.key===key)return;RAS.key=key;
+  if(!pts||pts.length<3){RAS.cv=null;return}
+  const lo=zs-zt,hi=zs+zt;let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9,n=0;
+  for(let i=0;i<pts.length;i+=3){const z=pts[i+2];if(z<lo||z>hi)continue;n++;const x=pts[i],y=pts[i+1];if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+  if(!n){RAS.cv=null;return}
+  let res=.05;while(((x1-x0)/res+2)*((y1-y0)/res+2)>2e6)res*=2;       // <= 2 M cells: 2 MB counts + 8 MB canvas
+  const w=Math.ceil((x1-x0)/res)+1,h=Math.ceil((y1-y0)/res)+1,cnt=new Uint8Array(w*h);
+  for(let i=0;i<pts.length;i+=3){const z=pts[i+2];if(z<lo||z>hi)continue;const a=Math.floor((pts[i]-x0)/res),b=h-1-Math.floor((pts[i+1]-y0)/res);const k=b*w+a;if(cnt[k]<255)cnt[k]++}
+  const cvr=RAS.cv&&RAS.cv.width===w&&RAS.cv.height===h?RAS.cv:document.createElement('canvas');cvr.width=w;cvr.height=h;
+  const g=cvr.getContext('2d'),im=g.createImageData(w,h),d=im.data;
+  const put=k=>{const o=4*k;d[o]=0;d[o+1]=188;d[o+2]=212;d[o+3]=235};
+  for(let k=0;k<cnt.length;k++){if(cnt[k]<2)continue;const c=k%w,r=(k-c)/w;       // each hit is drawn 2 x 2 cells (10 cm): sparse lidar hits join into a line
+    put(k);if(c<w-1)put(k+1);if(r<h-1){put(k+w);if(c<w-1)put(k+w+1)}}
+  g.putImageData(im,0,0);RAS.cv=cvr;RAS.x0=x0;RAS.y1=y0+h*res;RAS.w=w;RAS.h=h;RAS.res=res}
+function drawWorldImage(img,x,y,w,h,cell){
+  const a=toS(x,y),sw=w*S.cam.s,sh=h*S.cam.s,thin=cell*S.cam.s<1.6;
+  cx.save();cx.translate(...a);cx.rotate(S.cam.angle||0);cx.imageSmoothingEnabled=thin;cx.drawImage(img,0,0,sw,sh);
+  if(thin){cx.drawImage(img,.8,0,sw,sh);cx.drawImage(img,0,.8,sw,sh);cx.drawImage(img,.8,.8,sw,sh)}cx.restore()}
+function drawRaster(){if(RAS.cv)drawWorldImage(RAS.cv,RAS.x0,RAS.y1,RAS.w*RAS.res,RAS.h*RAS.res,RAS.res)}
+// while mapping, a saved map drawn under the new run would look aligned but is in another frame (the new run's odom)
+const hideSaved=()=>S.mode==='realtime'||(S.stage==='realtime'&&S.mode==='idle')||isMap()&&!(S.stage==='build'&&S.sub.build==='edit');
+function draw(){
+  if(!W)return;
+  const view=S.view,dark=view==='3d',zs=+$('#zs').value,zt=+$('#zt').value,st=S.st;
+  cx.clearRect(0,0,W,H);
+  if(dark&&GL.ok)GL.render(zs,zt);
+  if(dark&&!GL.ok)drawGrid3d();
+  if(!dark){drawGrid();
+    if(S.img&&S.meta&&!hideSaved()){const m=S.meta;drawWorldImage(S.img,m.origin[0],m.origin[1]+m.height*m.resolution,m.width*m.resolution,m.height*m.resolution,m.resolution)}
+    if(S.mode==='realtime'&&S.online){const m=S.online;drawWorldImage(m.img,m.origin[0],m.origin[1]+m.height*m.resolution,m.width*m.resolution,m.height*m.resolution,m.resolution)}
+    if(S.mode!=='realtime')S.edits.forEach(e=>{if(e.type==='wall'){const a=toS(e.x1,e.y1),b=toS(e.x2,e.y2);cx.beginPath();cx.moveTo(...a);cx.lineTo(...b);cx.strokeStyle='#0f7a6d';cx.setLineDash([8,5]);cx.lineWidth=3;cx.stroke();cx.setLineDash([])}
+      else{const[a,b]=toS(e.x,e.y);cx.beginPath();cx.arc(a,b,e.r*S.cam.s,0,7);cx.strokeStyle='rgba(226,70,31,.8)';cx.setLineDash([5,4]);cx.lineWidth=1.5;cx.stroke();cx.setLineDash([])}})}
+  if(!(dark&&GL.ok)){
+    if($('#lyStatic').checked&&!hideSaved())drawCloud(S.stat,view,zs,zt,'rgba(74,82,99,.55)',false);
+    if($('#lyLive').checked){if(dark)drawCloud(S.live,view,zs,zt,'rgba(15,122,109,.85)',$('#lyAbove').checked);else{rasterLive(zs,zt);drawRaster()}}}
+  if(!dark&&$('#lyLive').checked&&S.evidence&&(S.mode==='realtime'||S.viewMap===S.loaded)){
+    const e=S.evidence;drawWorldImage(e.img,e.origin[0],e.origin[1]+e.height*e.resolution,
+      e.width*e.resolution,e.height*e.resolution,e.resolution)}
+  if($('#lyScan').checked&&st&&st.scan.length){cx.fillStyle='#e2461f';for(const p of st.scan){const[a,b]=toS(p[0],p[1]);cx.fillRect(a-1.5,b-1.5,3,3)}}
+  if(S.mode==='map'&&S.track&&S.track.path.length>1){polyPts(S.track.path,'rgba(226,70,31,.75)',3);S.track.marks.forEach((m,i)=>drawFlag(m[0],m[1],0,'#c98a0a','P'+(i+1)))}
+  if(st&&st.route_preview)for(const pl of st.route_preview)polyPts(pl,'rgba(44,95,168,.55)',2.5,[8,6]);   // later legs of the running route (display only)
+  if(st&&st.nav_path&&st.nav_path.length>1)polyPts(st.nav_path,'#2c5fa8',3);
+  if(S.route&&S.mode!=='realtime'){polyPts(S.route.path,'#e2461f',3.5);S.route.marks.forEach((m,i)=>drawFlag(m[0],m[1],0,'#c98a0a','P'+(i+1)))}
+  const serverWps=st&&st.markers&&st.markers.length?st.markers:null,running=taskActive();
+  if(serverWps&&(running||!S.wps.length)){
+    serverWps.forEach(m=>{const[a,b]=toS(m.x,m.y);cx.beginPath();cx.arc(a,b,Math.max(10,m.r*S.cam.s),0,7);cx.fillStyle=(WPCOL[m.state]||'#8a8f9a')+'55';cx.fill();cx.strokeStyle=WPCOL[m.state]||'#8a8f9a';cx.lineWidth=2;cx.stroke();
+      cx.fillStyle='#1c2230';cx.font='700 12px ui-monospace,monospace';cx.textAlign='center';cx.textBaseline='middle';cx.fillText(m.i+1,a,b);
+      if(m.yaw!=null){const R=Math.max(10,m.r*S.cam.s),L=Math.min(R*.85,30),ang=(S.view==='slice'?(S.cam.angle||0):0)-m.yaw;
+        cx.save();cx.translate(a,b);cx.rotate(ang);cx.strokeStyle='#1c2230';cx.lineWidth=2;cx.beginPath();cx.moveTo(L*.45,0);cx.lineTo(L-6,0);cx.stroke();
+        cx.fillStyle='#1c2230';cx.beginPath();cx.moveTo(L,0);cx.lineTo(L-9,-5.5);cx.lineTo(L-9,5.5);cx.closePath();cx.fill();cx.restore()}})}
+  else if(S.mode!=='realtime')S.wps.forEach((w,i)=>drawFlag(w.x,w.y,w.th,S.problems&&S.problems[i]&&S.problems[i].length?'#e2461f':'#0f7a6d',i+1,{sel:w.id===S.sel}));
+  if(S.mode!=='realtime'&&S.goal)drawFlag(S.goal.x,S.goal.y,S.goal.th,'#2c5fa8','');
+  if(S.mode==='realtime'&&S.st&&S.st.realtime){for(const f of S.st.realtime.frontiers||[])drawFlag(f.x,f.y,null,'#c98a0a','·');const g=S.st.realtime.goal||(S.rtControl==='point'?S.rtTarget:null);if(g)drawFlag(g.x,g.y,g.yaw??null,'#2c5fa8','')}
+  if(S.init)drawFlag(S.init.x,S.init.y,S.init.th,'#8a63d2','◎');
+  if(!dark&&S.tool&&TOOLCOL[S.tool]){
+    if(drag&&drag.t===S.tool)drawFlag(drag.p.x,drag.p.y,drag.th,TOOLCOL[S.tool],TOOLLBL[S.tool](),{sel:true});
+    else if(S.hover)drawFlag(S.hover.x,S.hover.y,0,TOOLCOL[S.tool],TOOLLBL[S.tool](),{alpha:.5})}
+  if(!dark&&S.tool==='wall'&&S.hover&&S.toolBuf){const a=toS(...S.toolBuf),b=toS(S.hover.x,S.hover.y);cx.beginPath();cx.moveTo(...a);cx.lineTo(...b);cx.strokeStyle='#0f7a6d';cx.setLineDash([8,5]);cx.lineWidth=3;cx.stroke();cx.setLineDash([])}
+  if(!dark&&S.tool==='erase'&&S.hover){const[a,b]=toS(S.hover.x,S.hover.y);cx.beginPath();cx.arc(a,b,(+$('#eR').value||.5)*S.cam.s,0,7);cx.strokeStyle='rgba(226,70,31,.8)';cx.setLineDash([5,4]);cx.lineWidth=1.5;cx.stroke();cx.setLineDash([])}
+  if(st&&st.pose){const p=displayPose()||st.pose;(dark&&GL.ok)?drawRobot3d(p):drawRobot(p)}}
+function drawRobot3d(p){const c=Math.cos(p.th),s=Math.sin(p.th),z=GL.floor+.02;
+  const P=[[.45,0],[-.3,.22],[-.3,-.22]].map(([a,b])=>toS(p.x+c*a-s*b,p.y+s*a+c*b,z));
+  cx.beginPath();cx.moveTo(...P[0]);cx.lineTo(...P[1]);cx.lineTo(...P[2]);cx.closePath();cx.fillStyle='#e2461f';cx.fill();cx.lineWidth=2;cx.strokeStyle='#fff';cx.stroke()}
+
+/* ---------- 视图 ---------- */
+let toolMsg='';
+function setView(v){S.view=v;$$('#viewSeg button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  $('#stage').classList.toggle('gl3d',v==='3d'&&GL.ok);
+  $('#lyAboveBox').hidden=v!=='3d';$('#psBox').hidden=v!=='3d'||!GL.ok;
+  ['edlKBox','bandBox'].forEach(i=>$('#'+i).hidden=v!=='3d'||!GL.ok);
+  if(v==='3d'&&GL.ok&&!S.glFitted){S.glFitted=true;GL.fit()}hudTl();S.dirty=true}
+$$('#viewSeg button').forEach(b=>b.onclick=()=>{endTool();setView(b.dataset.v)});
+function hudTl(){const el=$('#hudTl');let h='';
+  if(S.view==='slice'&&!S.tool)h='<span class="note">左键拖动旋转 · 右键平移 · 中键滚轮缩放</span>';
+  if(S.view==='3d')h+=GL.ok?`<div class="iso">${[['top','俯视'],['iso','斜视']].map(([k,n])=>`<button data-p="${k}">${n}</button>`).join('')}</div><span class="note" style="margin-left:8px;color:var(--ink2)">左键拖动旋转 · 右键/Shift 平移 · 滚轮缩放</span>`
+    :`<div class="iso">${[['top','俯视'],['iso','等轴']].map(([k,n])=>`<button data-i="${k}" class="${S.iso===k?'on':''}">${n}</button>`).join('')}</div>`;
+  if(S.tool)h+=`<div class="tool"><span>${toolMsg}</span><button id="toolX">${S.tool==='wp'?'完成':'取消'}</button></div>`;
+  el.innerHTML=h;
+  $$('#hudTl [data-i]').forEach(b=>b.onclick=()=>{S.iso=b.dataset.i;hudTl();S.dirty=true});
+  $$('#hudTl [data-p]').forEach(b=>b.onclick=()=>{GL.preset(b.dataset.p);S.dirty=true});
+  if($('#toolX'))$('#toolX').onclick=endTool}
+$('#zIn').onclick=()=>{S.cam.s=Math.min(400,S.cam.s*1.25);S.dirty=true};$('#zOut').onclick=()=>{S.cam.s=Math.max(1,S.cam.s/1.25);S.dirty=true};
+$('#zFit').onclick=fitView;
+$('#follow').onclick=()=>{S.follow=!S.follow;$('#follow').classList.toggle('on',S.follow)};
+$('#zs').oninput=e=>{$('#zsV').textContent=(+e.target.value).toFixed(2);S.dirty=true};
+$('#zt').oninput=e=>{$('#ztV').textContent=(+e.target.value).toFixed(2);S.dirty=true};
+// Obstacle lifetimes live in per_evidence (sole owner); the sliders send a command and follow its echo (/api/state evidence_ttl).
+let ttlTimer=null,ttlEdit=0;
+function sendTtl(){clearTimeout(ttlTimer);ttlTimer=setTimeout(async()=>{ttlEdit=Date.now();try{await api('/api/evidence_ttl',{dynamic_s:+$('#ttlDyn').value,static_s:+$('#ttlSta').value})}catch(e){toast('障碍时长未更新：'+e.message)}},300)}
+$('#ttlDyn').oninput=e=>{$('#ttlDynV').textContent=e.target.value;ttlEdit=Date.now();sendTtl()};
+$('#ttlSta').oninput=e=>{$('#ttlStaV').textContent=e.target.value;ttlEdit=Date.now();sendTtl()};
+function syncTtl(t){if(!t||Date.now()-ttlEdit<2500)return;   // never fight the slider while it is being dragged
+  const d=Math.round(t.dynamic_ttl_s),s=Math.round(t.static_ttl_s);
+  if(+$('#ttlDyn').value!==d){$('#ttlDyn').value=d;$('#ttlDynV').textContent=d}
+  if(+$('#ttlSta').value!==s){$('#ttlSta').value=s;$('#ttlStaV').textContent=s}}
+$$('#layers input[type=checkbox]').forEach(c=>c.onchange=()=>{S.dirty=true;if(c.id==='lyLive'){S.liveRev=-1}});
+
+/* ---------- 在地图上点选 ---------- */
+const HINT={rtPoint:'在已观测空闲区点击选目标，按下拖动设置朝向',wp:'点击添加航点，按下并拖动设置朝向',pose:'在狗所在位置按下，并拖向它面朝的方向',plE:'点击设置终点，拖动设置朝向',wall:'点击墙的第 1 个端点',erase:'点击要擦掉的位置'};
+const TBTN={rtPoint:'#rtPick',wp:'#wpPick',pose:'#poseTool',plE:'#plE',wall:'#edGo',erase:'#edGo2'};
+function startTool(t){if(S.view!=='slice')setView('slice');endTool();S.tool=t;S.toolBuf=null;toolMsg=HINT[t];hudTl();cv.style.cursor='crosshair';$(TBTN[t])&&$(TBTN[t]).classList.add('on')}
+function endTool(){S.tool=null;S.toolBuf=null;S.hover=null;hudTl();cv.style.cursor='';Object.values(TBTN).forEach(s=>$(s)&&$(s).classList.remove('on'));S.dirty=true}
+const hitWp=(px,py)=>{for(let i=S.wps.length-1;i>=0;i--){const[a,b]=toS(S.wps[i].x,S.wps[i].y);if(Math.hypot(a-px,b-py)<15)return S.wps[i]}return null};
+const locked=()=>taskActive();
+cv.onpointerdown=e=>{const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;cv.setPointerCapture(e.pointerId);const w=toW(px,py);
+  if(e.button===1){e.preventDefault();drag={zoom:true,y:py,s:S.cam.s,dist:GL.cam?GL.cam.dist:20};return}
+  if(S.view==='3d'&&GL.ok){drag={orbit:true,pan:e.button===2||e.shiftKey,x:px,y:py};S.follow=false;$('#follow').classList.remove('on');return}
+  if(e.button===0&&S.tool&&S.view==='slice'){drag={t:S.tool,p:w,th:0,sx:px,sy:py};return}
+  const h=e.button===0&&S.view==='slice'&&S.stage==='task'&&!locked()&&hitWp(px,py);
+  if(h){S.sel=h.id;renderWps();drag={move:h};return}
+  drag=e.button===2||e.shiftKey?{pan:true,x:px,y:py,cx:S.cam.cx,cy:S.cam.cy,world:w}:{rotate2d:true,x:px,angle:S.cam.angle||0};S.follow=false;$('#follow').classList.remove('on')};
+cv.onpointermove=e=>{const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top,w=toW(px,py);
+  $('#hudCoord').textContent=`x ${w.x.toFixed(2)}  y ${w.y.toFixed(2)}`;S.hover=w;S.dirty=true;
+  if(!drag){if(!S.tool)cv.style.cursor='grab';return}
+  if(drag.zoom){const f=Math.exp((py-drag.y)*.008);if(S.view==='3d'&&GL.ok)GL.cam.dist=Math.max(1.5,Math.min(600,drag.dist*f));else S.cam.s=Math.max(1,Math.min(400,drag.s/f));return}
+  if(drag.rotate2d){S.cam.angle=drag.angle+(px-drag.x)*.008;return}
+  if(drag.orbit){const dx=px-drag.x,dy=py-drag.y;drag.x=px;drag.y=py;drag.pan?GL.pan(dx,dy):GL.rotate(dx,dy);S.dirty=true;return}
+  if(drag.pan){if(S.view==='slice'){S.cam.cx+=drag.world.x-w.x;S.cam.cy+=drag.world.y-w.y}else{const k=S.iso==='iso'?.8:1;S.cam.cx=drag.cx-(px-drag.x)/S.cam.s/k;S.cam.cy=drag.cy+(py-drag.y)/S.cam.s/k}S.follow=false;$('#follow').classList.remove('on')}
+  else if(drag.move){drag.move.x=+w.x.toFixed(3);drag.move.y=+w.y.toFixed(3);S.problems=null}
+  else if(Math.hypot(px-drag.sx,py-drag.sy)>6){drag.th=Math.atan2(w.y-drag.p.y,w.x-drag.p.x);drag.moved=true}};
+cv.onpointerleave=()=>{S.hover=null;S.dirty=true};
+cv.oncontextmenu=e=>e.preventDefault();
+cv.onauxclick=e=>e.preventDefault();
+cv.onpointercancel=()=>{drag=null;S.dirty=true};
+cv.onpointerup=()=>{if(!drag)return;const d=drag;drag=null;S.dirty=true;
+  if(d.pan||d.orbit||d.rotate2d||d.zoom)return;if(d.move){renderWps();return}
+  const p={x:+d.p.x.toFixed(3),y:+d.p.y.toFixed(3),th:d.th,moved:!!d.moved};
+  switch(d.t){
+    case'rtPoint':S.rtTarget={x:p.x,y:p.y,yaw:p.moved?p.th:null};endTool();renderRealtime(S.st);break;
+    case'wp':S.wps.push({id:'w'+Date.now(),name:'点'+(S.wps.length+1),x:p.x,y:p.y,th:p.moved?p.th:null});S.sel=S.wps.at(-1).id;S.problems=null;renderWps();break;
+    case'pose':S.init=p;$('#poseV').textContent=fx(p)+' '+deg(p.th);$('#relocBtn').disabled=false;endTool();break;
+    case'plE':S.goal={x:p.x,y:p.y,th:p.moved?p.th:null};endTool();renderGo();break;
+    case'wall':if(!S.toolBuf){S.toolBuf=[p.x,p.y];toolMsg='点击墙的第 2 个端点';hudTl()}else{S.edits.push({type:'wall',x1:S.toolBuf[0],y1:S.toolBuf[1],x2:p.x,y2:p.y});S.toolBuf=null;toolMsg=HINT.wall;hudTl();renderEdits()}break;
+    case'erase':S.edits.push({type:'erase',x:p.x,y:p.y,r:+$('#eR').value||.5});renderEdits();break}};
+cv.onwheel=e=>{e.preventDefault();const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
+  if(S.view==='3d'&&GL.ok){GL.zoom(Math.exp(e.deltaY*.0012));S.dirty=true;return}
+  if(S.view==='slice'){const w=toW(px,py);S.cam.s=Math.max(1,Math.min(400,S.cam.s*(e.deltaY<0?1.1:.9)));const w2=toW(px,py);S.cam.cx+=w.x-w2.x;S.cam.cy+=w.y-w2.y}
+  else S.cam.s=Math.max(1,Math.min(400,S.cam.s*(e.deltaY<0?1.1:.9)));S.dirty=true};
+
+/* ---------- 定位 ---------- */
+$('#poseTool').onclick=()=>S.tool==='pose'?endTool():startTool('pose');
+$('#poseDock').onclick=()=>{S.init={x:0,y:0,th:0};$('#poseV').textContent=fx(S.init)+' 0°';$('#relocBtn').disabled=false;S.dirty=true;toast('已设为建图起点 (0, 0)')};
+$('#relocBtn').onclick=async()=>{if(!S.init)return;
+  S.alignSending=true;renderLoc(S.st);
+  try{const r=await api('/api/initialpose',{x:S.init.x,y:S.init.y,yaw:S.init.th});S.alignRequestId=r.request_id;toast('初始位置已提交，正在定位…')}catch(e){fail(e)}finally{S.alignSending=false}};
+function alignmentPending(st){const a=st&&st.alignment||{};return S.alignSending||a.state==='pending'||!!(S.alignRequestId&&a.request_id<S.alignRequestId)}
+function renderLoc(st){
+  if(!st)return;
+  const alignment=st.alignment||{},waiting=alignmentPending(st);
+  const l=st.loc,sc=l&&l.map_score!=null?l.map_score:null,ok=l&&l.state==='OK';
+  $('#gFill').style.width=(sc!=null?Math.max(0,Math.min(1,sc))*100:0)+'%';$('#gMark').style.left=(st.score_low*100)+'%';
+  $('#gState').textContent=waiting?'正在定位':alignment.state==='failed'?'定位失败':!l?'无数据':l.state==='LOST'?'定位丢失':alignment.state==='weak'?'初始定位弱对齐':alignment.requested&&alignment.state==='ok'?'初始定位完成':!l?'无数据':({OK:'已定位',DEGRADED:'偏低',LOST:'丢失'})[l.state];
+  $('#gScore').textContent=sc!=null?`吻合 ${(sc*100).toFixed(0)}%`:'等待激光与地图吻合分数';
+  const g=$('#gMsg');
+  if(waiting){g.className='alert';g.innerHTML='<span>…</span><span>初始位置已提交，等待激光对齐和新坐标生效…</span>'}
+  else if(alignment.state==='failed'){g.className='alert bad';g.innerHTML='<span>⚠</span><span>初始定位失败：'+esc(alignment.reason||'未收到对齐结果')+'。请重新设置位置并重试。</span>'}
+  else if(!l){g.className='alert';g.innerHTML='<span>ⓘ</span><span>没有收到 /loc_status。</span>'}
+  else if(ok&&!st.aligned){g.className='alert';g.innerHTML='<span>ⓘ</span><span>吻合分数正常，但本次还没有定位：任务要求先「开始定位」一次（狗可能并不在地图原点）。</span>'}
+  else if(ok&&alignment.state==='weak'){g.className='alert';g.innerHTML='<span>⚠</span><span>本次初始定位为弱对齐，使用了给定的位置。请检查红色扫描点是否落在地图墙上。</span>'}
+  else if(ok){g.className='alert ok';g.innerHTML='<span>✓</span><span>'+(alignment.requested?'本次初始定位已完成。':'')+'定位正常，可以去「任务」让狗工作了。</span><button class="btn go2 sm" id="toTask">去任务</button>';$('#toTask').onclick=()=>{S.stage='task';renderNav()}}
+  else if(l.state==='DEGRADED'){g.className='alert';g.innerHTML=`<span>⚠</span><span>定位偏低（${esc(l.reason||'-')}）。刚启动时地图和狗的位置还没对上是正常的：在地图上指出狗的位置再点“开始定位”。</span>`}
+  else if(st.simulation){g.className='alert';g.innerHTML='<span>ⓘ</span><span>等待模型、站立与步态控制器就绪；暂不发送运动指令。</span>'}
+  else{g.className='alert bad';g.innerHTML=`<span>⚠</span><span>定位丢失（${esc(l.reason||'-')}）。狗站稳别动，重新指出位置；Leg-KILO 发散时需要重启。</span>`}
+  const a=st.last_align;
+  $('#alignV').textContent=waiting?'正在对齐…':alignment.state==='failed'?'本次初始定位失败':st.simulation&&st.localisation==='ground_truth'?'Gazebo 真值（诊断模式）':!a?(isNav()?'本次还没有定位':'—'):a.name==='ALIGN_OK'?`✓ 对上了（吻合 ${Math.round(100*(+a.fields.score||0))}%，修正 ${(+a.fields.shift_m||0).toFixed(2)} m）`:a.name==='ALIGN_WEAK'?`⚠ 用了你指的位置（${a.fields.reason||''}）：看红色雷达点是否落在墙上，不对就再指一次`:`✗ 失败（${a.fields.reason||''}）`;
+  $('#relocBtn').disabled=waiting||!S.init||!isNav();
+  if(S.alignRequestId&&alignment.request_id===S.alignRequestId&&['ok','weak','failed'].includes(alignment.state)){
+    if(alignment.state!=='failed'){S.init=null;$('#poseV').textContent='—';$('#relocBtn').disabled=true}
+    S.alignRequestId=null;S.dirty=true}
+  $('#lcN1').classList.toggle('done',!!ok&&!!st.aligned)}
+function kv(k,v,small){return `<div class="kv"><span>${k}${small?`<small>${small}</small>`:''}</span><b>${v}</b></div>`}
+function renderDiag(st){
+  if(!($('.tab[data-t="loc.diag"]').offsetParent))return;
+  const l=st.loc,d=st.dev,s=st.safe;
+  const m=$('#dMsg'),tag=$('#dTag');
+  if(!l){tag.textContent='无数据';m.className='alert';m.innerHTML='<span>ⓘ</span><span>没有定位数据（栈没起，或 loc_pose 没在发）。</span>'}
+  else if(l.state==='OK'){tag.textContent='良好';tag.style.color='var(--teal)';m.className='alert ok';m.innerHTML='<span>✓</span><span>定位正常。</span>'}
+  else{tag.textContent=l.state==='LOST'?'丢失':'偏低';tag.style.color='var(--red)';m.className='alert '+(l.state==='LOST'?'bad':'');m.innerHTML=`<span>⚠</span><span>${esc(l.reason||'-')}</span>`}
+  $('#dLoc').innerHTML=l?kv('状态',l.state)+kv('原因',esc(l.reason||'—'))+kv('激光吻合分数',num(l.map_score,2),'/loc_map_score，低于 0.45 持续 3 s = SCORE_LOW')+kv('Leg-KILO 位姿年龄',num(l.kilo_age_s,2,' s'),'越大越可能发散')
+    +kv('位姿坐标系',st.pose?st.pose.frame:'—')+kv('实时点云',st.cloud_n+' 点'):'<div class="empty">无数据</div>';
+  $('#dDev').innerHTML=(d?kv('故障',d.fault?'<span style="color:var(--red)">'+esc(d.reason)+'</span>':'无')+kv('error_code',d.error_code,'100 = 正常待机')+kv('电压',num(d.battery_v,1,' V'))+kv('电机最高温',num(d.temp_c,0,' °C'))+kv('数据年龄',num(d.state_age_s,2,' s'))+kv('速度',num(d.speed,2,' m/s')):'<div class="empty">没有 /dev_state</div>')
+    +(s?kv('安全限速',s.limiting?`<span style="color:var(--amber)">${esc(s.direction)} · ${esc(s.reason)}</span>`:'无','键盘手动不受障碍限制')+kv('前方空隙',num(s.gap_m,2,' m')):'');
+  $('#evList').innerHTML=st.events.slice().reverse().slice(0,30).map(e=>`<li class="${e.warn?'warn':''}">${new Date(e.t*1000).toTimeString().slice(0,8)} ${esc(e.text)}</li>`).join('')||'<li>（暂无事件）</li>'}
+
+/* ---------- 修图 ---------- */
+$$('#edTool button').forEach(b=>b.onclick=()=>{$$('#edTool button').forEach(x=>x.classList.toggle('on',x===b));$('#edWallBox').hidden=b.dataset.t!=='wall';$('#edEraseBox').hidden=b.dataset.t!=='erase';endTool()});
+$('#edGo').onclick=()=>S.tool==='wall'?endTool():startTool('wall');
+$('#edGo2').onclick=()=>S.tool==='erase'?endTool():startTool('erase');
+function renderEdits(){const n=S.edits.length;$('#edCount').textContent=n;$('#edEmpty').hidden=n>0;$('#edMapName').textContent=S.viewMap||'（未选地图）';
+  $('#edList').innerHTML=S.edits.map((e,i)=>`<li class="ed"><span>${e.type==='wall'?'补墙':'擦除'} #${i+1}</span><span class="xy">${e.type==='wall'?`${fx({x:e.x1,y:e.y1})} → ${fx({x:e.x2,y:e.y2})}`:`${fx(e)} r${e.r}`}</span><button data-i="${i}" title="撤销这一条">✕</button></li>`).join('');
+  $$('#edList button').forEach(b=>b.onclick=()=>{S.edits.splice(+b.dataset.i,1);renderEdits();S.dirty=true});
+  $('#edSave').disabled=$('#edDiscard').disabled=n===0||!S.viewMap;$('#ed2n').classList.toggle('done',n>0);S.dirty=true}
+async function afterEdit(r){await viewMap(S.viewMap);$('#edReload').hidden=!r.reload_needed;await loadMaps()}
+$('#edSave').onclick=async()=>{try{const n=S.edits.length,r=await api(`/api/map/${encodeURIComponent(S.viewMap)}/edit`,{edits:S.edits});S.edits=[];endTool();toast(`已保存 ${n} 处改动（备份 ${r.backup}）`);await afterEdit(r)}catch(e){fail(e)}};
+$('#edDiscard').onclick=()=>confirmBox('放弃所有未保存的改动？',()=>{S.edits=[];renderEdits();endTool()});
+$('#edRestore').onclick=()=>{if(!S.viewMap)return toast('先选一张地图');confirmBox('还原到最近一次保存之前的版本？',async()=>{try{const r=await api(`/api/map/${encodeURIComponent(S.viewMap)}/restore`,{});toast('已还原 '+r.restored);await afterEdit(r)}catch(e){fail(e)}})};
+
+/* ---------- 多点巡航 ---------- */
+function renderWps(){
+  $('#wpCount').textContent=S.wps.length;$('#wpEmpty').hidden=S.wps.length>0;$('#wpTools').hidden=S.wps.length===0;
+  $('#wpN1').classList.toggle('done',S.wps.length>0);
+  $('#wpList').innerHTML=S.wps.map((w,i)=>{const pr=S.problems&&S.problems[i]||[];return `<li class="wp${w.id===S.sel?' sel':''}${pr.length?' badwp':''}" data-i="${i}">
+    <span class="badge">${i+1}</span><input class="nm" value="${esc(w.name)}" maxlength="24" spellcheck="false">
+    <div class="acts"><button class="up" title="上移" ${i===0?'disabled':''}>↑</button><button class="dn" title="下移" ${i===S.wps.length-1?'disabled':''}>↓</button><button class="del" title="删除">✕</button></div>
+    <span class="xy mono">${w.x.toFixed(2)}, ${w.y.toFixed(2)} · ${deg(w.th)}</span>${pr.length?`<span class="prob">${esc(pr.join('；'))}</span>`:''}</li>`}).join('');
+  $$('#wpList li').forEach(li=>{const i=+li.dataset.i,w=S.wps[i];
+    li.querySelector('.nm').oninput=e=>w.name=e.target.value;
+    li.querySelector('.badge').onclick=()=>{S.sel=w.id;S.follow=false;renderWps()};
+    const mv=d=>{if(locked())return toast('巡航中不能编辑航点');[S.wps[i],S.wps[i+d]]=[S.wps[i+d],S.wps[i]];S.problems=null;renderWps()};
+    li.querySelector('.up').onclick=()=>mv(-1);li.querySelector('.dn').onclick=()=>mv(1);
+    li.querySelector('.del').onclick=()=>{if(locked())return toast('巡航中不能编辑航点');S.wps.splice(i,1);S.problems=null;renderWps()}});
+  renderCheck();S.dirty=true}
+$('#wpPick').onclick=()=>{if(locked())return toast('巡航中不能编辑航点');S.tool==='wp'?endTool():startTool('wp')};
+$('#wpHere').onclick=()=>{if(locked()||!S.st||!S.st.pose)return toast('没有狗的位置');const p=S.st.pose;S.wps.push({id:'w'+Date.now(),name:'点'+(S.wps.length+1),x:+p.x.toFixed(3),y:+p.y.toFixed(3),th:p.th});S.problems=null;renderWps()};
+$('#wpUndo').onclick=()=>{if(locked())return;S.wps.pop();S.problems=null;renderWps()};
+$('#wpClear').onclick=()=>{if(locked())return;S.wps=[];S.problems=null;renderWps()};
+const wpKey=()=>JSON.stringify(S.wps.map(w=>[w.x,w.y,w.th]));
+const wpRows=()=>S.wps.map(w=>({name:w.name,x:w.x,y:w.y,yaw:w.th==null?undefined:w.th,radius_m:w.radius_m,path:w.path}));
+$('#wpCheck').onclick=async()=>{if(!S.wps.length)return toast('还没有航点');
+  try{const r=await api('/api/check',{map:S.loaded,waypoints:wpRows()});S.problems=r.problems;S.checkedKey=wpKey();renderWps()}catch(e){fail(e)}};
+function renderCheck(){const el=$('#wpCheckInfo');
+  const ok=S.problems&&S.checkedKey===wpKey(),bad=ok&&S.problems.some(p=>p.length);
+  el.innerHTML=!ok?'<span style="color:var(--mute);font-family:var(--sans);font-weight:400">'+(S.wps.length?'未检查（航点有改动需重新检查）':'先设置航点')+'</span>':bad?`<span style="color:var(--red-d)">✗ ${S.problems.filter(p=>p.length).length} 个点有问题</span>`:'<span style="color:var(--teal)">✓ 全部通过</span>';
+  $('#wpN2').classList.toggle('done',!!ok&&!bad);updRun()}
+$('#msLoad').onclick=async()=>{const n=$('#msSel').value;if(!n)return;try{const j=await api('/api/mission/'+encodeURIComponent(n));
+  S.wps=j.waypoints.map((w,i)=>({id:'w'+Date.now()+i,name:w.name||'点'+(i+1),x:w.x,y:w.y,th:w.yaw==null?null:w.yaw,radius_m:w.radius_m,path:w.path}));S.problems=null;renderWps();toast('已载入 '+n)}catch(e){fail(e)}};
+$('#msSave').onclick=async()=>{const n=$('#msName').value.trim();if(!n||!S.wps.length)return toast('填航线名，并先设置航点');
+  try{await api('/api/mission/'+encodeURIComponent(n),{waypoints:wpRows()});await loadMaps();toast('已保存 missions/'+n+'.yaml')}catch(e){fail(e)}};
+
+/* ---------- 示教路线 ---------- */
+async function loadRoutes(){S.route=null;S.routes=[];if(!S.loaded){renderRoutes();return}
+  try{S.routes=(await api('/api/routes?map='+encodeURIComponent(S.loaded))).routes}catch(e){}renderRoutes()}
+function renderRoutes(){$('#rtCount').textContent=S.routes.length;$('#rtEmpty').hidden=S.routes.length>0;
+  $('#rtList').innerHTML=S.routes.map(r=>`<li class="wp rt${S.route&&S.route.name===r.name?' sel':''}" data-n="${esc(r.name)}"><div class="info"><b>${esc(r.name)}</b><span>${r.length_m} m · ${r.marks} 个停靠点</span></div><div class="acts"><button class="del" title="删除">✕</button></div></li>`).join('');
+  $$('#rtList li').forEach(li=>{const n=li.dataset.n;
+    li.querySelector('.info').onclick=async()=>{try{S.route=await api(`/api/route/${encodeURIComponent(n)}?map=${encodeURIComponent(S.loaded)}`);S.route.name=n;renderRoutes();S.dirty=true}catch(e){fail(e)}};
+    li.querySelector('.del').onclick=()=>confirmBox('删除这条路线？',async()=>{try{await api(`/api/route/${encodeURIComponent(n)}/delete`,{map:S.loaded});await loadRoutes()}catch(e){fail(e)}})});
+  $('#thN1').classList.toggle('done',S.routes.length>0);$('#thN2').classList.toggle('done',!!S.route);updRun();S.dirty=true}
+async function startTeach(){const r0=S.route;if(!r0)return;
+  const p=S.st&&S.st.pose,near=$('#thNear').checked&&p;
+  try{
+    // the route as waypoints WITH their taught path: mot_nav follows each segment as it is (no re-planning on it)
+    const r=await api(`/api/route/${encodeURIComponent(r0.name)}?map=${encodeURIComponent(S.loaded)}`+(near?`&from_x=${p.x}&from_y=${p.y}`:''));
+    const w=r.waypoints.map(x=>({name:x.name,x:x.x,y:x.y,path:x.path}));
+    const c=await api('/api/check',{waypoints:w});
+    askIfBad(w.map(x=>x.name),c.problems,async()=>{try{await runWeb(w,$('#thLoop').checked)}catch(e){fail(e)}})}catch(e){fail(e)}}
+
+/* ---------- 单点前往 ---------- */
+function renderGo(){$('#plEV').textContent=S.goal?fx(S.goal)+' '+deg(S.goal.th):'—';$('#plE').hidden=!!S.goal;$('#plEX').hidden=!S.goal;$('#goN1').classList.toggle('done',!!S.goal);updRun();S.dirty=true}
+$('#plE').onclick=()=>S.tool==='plE'?endTool():startTool('plE');
+$('#plEX').onclick=()=>{S.goal=null;renderGo()};
+
+/* ---------- 执行（巡航 / 前往）：开始 → 结束，进度来自 /task_status ---------- */
+$$('.runbox').forEach(b=>{const u=b.dataset.ui;b.innerHTML=`
+  <div class="row" id="${u}StartRow"><button class="btn go block" id="${u}Start">${b.dataset.label}</button></div>
+  <div class="live" id="${u}Live" hidden>
+    <div class="state"><span class="sw run"></span><span id="${u}St">执行中</span><span class="mono" id="${u}Pct" style="margin-left:auto"></span></div>
+    <div class="bar"><i id="${u}Bar"></i></div>
+    <div class="progTxt mono" id="${u}Txt">—</div>
+    <div class="row"><button class="btn danger block" id="${u}Stop">■ 结束（取消任务）</button></div>
+  </div>`;
+  $('#'+u+'Stop').onclick=async()=>{try{await api('/api/task',{command:'cancel'});toast('已取消任务')}catch(e){fail(e)}}});
+const STATE_TXT={PENDING:'等待',APPROACH:'前往中',RECOVER:'恢复中',ARRIVED:'已到达',SKIPPED:'已跳过',BAD:'检查不合格'};
+function updRun(){const t=S.st&&S.st.task,run=taskActive();
+  ['wp','go','teach'].forEach(u=>{const st=$('#'+u+'Start');if(!st)return;
+    $('#'+u+'Live').hidden=!run;$('#'+u+'StartRow').hidden=!!run;
+    if(run){const p=t.count?Math.max(0,t.index)/t.count:0;
+      $('#'+u+'St').textContent=(t.mode==='loop'?'循环 · ':'')+(t.mission?`「${t.mission==='_web'?'网页任务':t.mission}」`:'单点')+' · '+(STATE_TXT[t.wp_state]||t.wp_state);
+      $('#'+u+'Pct').textContent=`${Math.max(0,t.index)+1} / ${t.count}`;$('#'+u+'Bar').style.width=(p*100)+'%';
+      const nv=S.st&&S.st.nav;
+      $('#'+u+'Txt').textContent=`剩余路程 ${num(t.remaining_m,1,' m')} · 本点用时 ${num(t.budget_s,0,' s')} · 恢复 ${t.tries} 次`+(nv&&nv.reason&&nv.reason!=='planning'?` · 导航：${nv.reason}`:'')}
+    let off=!ready(),tip=ready()?'':'先定位';
+    if(u==='wp'){if(!S.wps.length){off=true;tip='先设置航点'}else if(!(S.problems&&S.checkedKey===wpKey())){off=true;tip='请先完成第 2 步“检查航点”'}}
+    else if(u==='teach'){if(!S.route){off=true;tip='先在第 1 步选一条路线'}}
+    else if(!S.goal){off=true;tip='先选终点'}
+    st.disabled=off;st.title=tip})}
+const runWeb=async(rows,loop)=>{await api('/api/mission/_web',{waypoints:rows});await api('/api/task',{command:'load',arg:'_web'});await sleep(500);
+  await api('/api/task',{command:loop?'run_loop':'run_once'});banner('任务已发出：手动遥控已禁用');setTimeout(()=>banner(''),2500)};
+// the same rule for every kind of task: check with mot_nav's planner; failures are listed and the user decides (task_executor
+// marks them BAD and skips them)
+const askIfBad=(names,problems,go)=>{const bad=problems.map((x,i)=>x.length?`${names[i]}：${x[0]}`:'').filter(Boolean);
+  bad.length?confirmBox(`检查没通过（这些点会被跳过）：${bad.slice(0,3).join('；')}${bad.length>3?' …':''}。仍然开始？`,go):go()};
+$('#wpStart').onclick=()=>{const rows=wpRows(),loop=$('#pLoop').checked;
+  askIfBad(S.wps.map(w=>w.name),S.problems||[],async()=>{try{await runWeb(rows,loop)}catch(e){fail(e)}})};
+$('#teachStart').onclick=startTeach;
+$('#goStart').onclick=async()=>{if(!S.goal)return;const g=S.goal;
+  const go=async()=>{try{await api('/api/goal',{x:g.x,y:g.y,yaw:g.th==null?undefined:g.th})}catch(e){fail(e)}};
+  try{const c=await api('/api/check',{waypoints:[{name:'终点',x:g.x,y:g.y}]});askIfBad(['终点'],c.problems,go)}catch(e){fail(e)}};
+
+/* ---------- 主循环：只在有变化时重画 ---------- */
+function loop(){const q=S.poseFrames||[],p=displayPose();if(q.length>1&&performance.now()-150<q.at(-1).t)S.dirty=true;if(S.follow&&p){S.cam.cx=p.x;S.cam.cy=p.y;if(GL.ok){GL.cam.tx=p.x;GL.cam.ty=p.y}}if(S.dirty){S.dirty=false;draw()}requestAnimationFrame(loop)}
+
+(async function init(){
+  GL.init();
+  $('#ps').oninput=e=>{$('#psV').textContent=(+e.target.value).toFixed(1);S.dirty=true};
+  $('#edlK').oninput=e=>{$('#edlKV').textContent=e.target.value;S.dirty=true};
+  $('#bandH').oninput=e=>{$('#bandHV').textContent=(+e.target.value).toFixed(2);S.dirty=true};
+
+  renderNav();renderWps();renderEdits();renderGo();resize();hudTl();setView('slice');
+  if(W<700)$('#layers').open=false;
+  try{await loadMaps();if(S.mode!=='realtime')viewMap(S.loaded||(S.maps[0]&&S.maps[0].name)||null)}catch(e){toast('读取地图列表失败：'+e.message)}
+  poll();requestAnimationFrame(loop)})();      // polling does not wait for the map picture (a background tab pauses frames)
+</script>
+</body>
+</html>

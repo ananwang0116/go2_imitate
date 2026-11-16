@@ -1,0 +1,25 @@
+# /mot_nav_check: "can the dog do this?" asked of the SAME costmap and planner that drive it (one judge, P2).
+# Waypoint k is an area (x[k], y[k], radius_m[k]). Optional taught path to waypoint k: path_x/path_y[path_off[k] : path_off[k+1]]
+# (path_off has n+1 entries, or is empty when there are no paths).
+# Checked per waypoint: inside the map; radius_m >= loc_sigma_m; the area is not mostly unknown; a usable position exists
+# (a free cell with the hard clearance); it is connected to the previous waypoint (A*), or to the dog when use_start;
+# a taught path keeps the hard clearance along its length.
+float64[] x
+float64[] y
+float64[] radius_m
+uint32[] path_off
+float64[] path_x
+float64[] path_y
+bool use_start
+float64 start_x
+float64 start_y
+---
+bool available                        # false when no costmap has arrived yet (reason[] is then empty)
+bool[] ok
+string[] reason                       # "" when ok, else a short problem text
+float64[] leg_m                       # length of the A* leg to this waypoint (0 for the first one without use_start)
+# Geometry of those A* legs, for display only (the web console draws the later legs of a route): leg k is
+# leg_path_x/y[leg_path_off[k] : leg_path_off[k+1]] (leg_path_off has n+1 entries; an empty range = no leg for that waypoint).
+uint32[] leg_path_off
+float64[] leg_path_x
+float64[] leg_path_y

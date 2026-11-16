@@ -1,0 +1,5 @@
+Log file created at: 2026/11/11 17:38:28
+Running on machine: u
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+W1111 17:38:28.207644 208569 backend.cc:148] Skip empty submap 1 during finalize
+W1111 17:38:28.230183 208506 slam_result_saver.cc:727] Skipped 404 frames because matching submap poses were not found

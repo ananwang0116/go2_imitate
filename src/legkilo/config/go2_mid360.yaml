@@ -1,0 +1,104 @@
+# Leg-KILO for the real Unitree Go2 with a Livox Mid360 (since 2026-10-30), LIO mode (lidar + IMU; no leg kinematics). It is go2_v3's ONLY localisation: /kilo_odom -> loc_pose -> TF odom->base_footprint.
+# Topics are go2_v2 names (go2_common/names.py). Items marked UNVERIFIED have not been checked on the real dog yet:
+# check them with the bridge up (dog connected) before trusting the map (the old tools/check_kilo_inputs.py is moved in phase 3).
+
+# Topics
+lidar_topic: /dev_lidar_cloud        ## dev_mid360: /mid360/points_lio forwarded, frame `mid360_link` (lidar frame, NOT transformed), fields x y z intensity ring time, ~10 Hz, ~20 k points
+imu_topic: /dev_imu                  ## dev_bridge: rt/lowstate imu_state, frame `base`; measured 324 Hz, m/s^2 (Leg-KILO rescales the accel norm to `gravity` itself). Phase 3: stamped at sample time (lowstate tick) instead of arrival
+
+# Sensor Mode
+sensor_type: LIO                     ## LIO only: the Go1 HighState message of KILO mode does not exist on the Go2
+redundancy: true                     ## drop IMU samples identical to the previous one (the dog's IMU may update slower than it is published)
+
+# Initialization (start mapping with the dog standing still)
+gravity: 9.81
+init_type: 2                         ## 2: gravity-aligned start
+
+# Extrinsic: LiDAR frame -> body frame (KILO.cc: p_body = extrinsic_R * p_lidar + extrinsic_T; checked in the source 2026-10-30).
+# The body frame is `base` (the dog's IMU is treated as sitting at the base origin, its real offset is ignored as before).
+# The two lines below are placeholders: go2_bringup (run_dir.write_kilo_config) overwrites them in the per-run copy with the
+# mount from geometry.yaml (mid360_*), so the numbers exist in ONE place. Do not edit them here.
+extrinsic_T: [0.0, 0.0, 0.0]
+extrinsic_R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+
+# Lidar Common
+lidar_type: 1                        ## 1 = velodyne-style point (x y z intensity time); the extra `ring` field is ignored
+time_scale: 1                        ## `time` of /mid360/points_lio is float32 seconds relative to the frame start (span ~0.1 s at 10 Hz). UNVERIFIED in Leg-KILO: check the span on the board
+lidar_time_offset: 0.0               ## [s] added to the scan stamp. The Mid360 driver stamps the START of the frame, which is what Leg-KILO assumes (the old -0.065 was for the unitree cloud stamped at arrival = scan end). UNVERIFIED: calibrate with a turn-in-place test
+min_range: 0.5                       ## [m] measured in the LIDAR frame. The adapter already drops < 0.5 m; an unidentified near object on the dog's right side (0.65 m) is open, see docs/02_联调记录.md
+max_range: 20.0
+filter_num: 1
+voxel_grid_resolution: 0.3
+voxel_grid_mode: 1
+voxel_grid_target_num: 3000          ## UNVERIFIED for the Mid360 (~20 k points/frame, the unitree lidar gave ~1.5 k): tune on the board with the CPU in view
+voxel_grid_overshoot: 1.5
+
+# Voxel Map
+ndt_enable: true
+p2plane_enable: true
+voxel_size: 0.5
+beam_err: 0.2
+dept_err: 0.04
+voxel_max_num: 50
+planar_ratio: 0.1
+planar_thickness: 0.1
+nearby_type: 0
+capacity: 300000
+ndt_min_points: 5
+
+# backend
+kf_trans_threshold: 0.3
+kf_degree_threshold: 10.0
+kf_max_num_submap: 20
+kf_max_dist_submap: 5.0
+
+# Loop closure
+loop_closure_enable: true
+loop_search_radius: 10.0
+loop_min_id_separation: 2             ## in SUBMAP ids (one submap = 20 keyframes or 5 m, ~28 s here); was 50 = a loop needed >20 min of driving, so none was ever found
+loop_icp_max_corr_dist: 2.0
+loop_icp_max_iterations: 20
+loop_icp_fitness_threshold: 0.7
+loop_verify_max_attempts: 1
+loop_kiss_matcher_enabled: false
+loop_kiss_refine_min_id_gap: 100
+loop_kiss_inliers_threshold: 40
+loop_kiss_use_quatro: true
+
+# Eskf
+enable_second_step_eskf: true
+ieskf_max_iterations: 3
+imu_acc_meas_noise: 0.1
+imu_gyr_meas_noise: 0.01
+p2plane_kernel_threshold: 5.0
+ndt_kernel_threshold: 5.0
+
+# Result files
+temp_result_save_folder: go2_run               ## <package source>/result/go2_run/, wiped at every start
+auto_save_root: ""                             ## go2_v2: empty = off here; go2_bringup writes a per-run copy of this file with <run>/kilo. On exit Leg-KILO writes <root>/kilo_<YYYYmmdd_HHMMSS>/{global_map/global_map.pcd, trajectories/...}
+auto_save_voxel: 0.05                          ## [m] voxel size of the saved global map
+
+# Keys Leg-KILO reads but this file did not set: written here with EXACTLY the defaults it used anyway
+# (from its "Key not found ... returning default" warnings, 2026-10-25), only to stop 22 warning lines at every start.
+vel_process_cov: 20
+imu_acc_process_cov: 500
+imu_gyr_process_cov: 1000
+acc_bias_process_cov: 0.001
+gyr_bias_process_cov: 0.001
+two_step_lidar_eskf: true
+use_state_covariance_for_lidar_points: true
+ndt_jitter: 1.0e-6
+ndt_eigenvalue_regularization: true
+ndt_min_eigenvalue: 1.0e-6
+ndt_max_condition: 1000
+submap_idle_finish_timeout: 1
+factor_graph_max_iterations: 100
+odom_near_trans_sigma: 0.1
+odom_near_rot_sigma_deg: 5
+odom_next_trans_sigma_multiplier: 2
+odom_next_rot_sigma_multiplier: 2
+loopclosure_loss_scale: 3
+loopclosure_rot_sigma_multiplier: 4
+loopclosure_trans_sigma_multiplier: 10
+loop_icp_inlier_dist_threshold: 0.5
+loop_icp_num_threads: 2

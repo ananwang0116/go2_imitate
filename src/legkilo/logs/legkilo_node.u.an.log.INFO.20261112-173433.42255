@@ -1,0 +1,248 @@
+Log file created at: 2026/11/12 17:34:33
+Running on machine: u
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I1112 17:34:33.286346 42255 glog_utils.hpp:129] Pruned 1 old log files (keep per level = 20) — oldest deleted about 0 days old.
+I1112 17:34:33.286597 42255 ros_interface.cc:41] Ros2 Interface is being Constructed
+I1112 17:34:33.292349 42255 yaml_helper.hpp:64] YAML Key:  lidar_topic = /sim/kilo_points
+I1112 17:34:33.292375 42255 yaml_helper.hpp:64] YAML Key:  sensor_type = LIO
+I1112 17:34:33.292388 42255 yaml_helper.hpp:80] YAML Key: redundancy = false
+I1112 17:34:33.292412 42255 yaml_helper.hpp:80] YAML Key: lidar_time_offset = 0
+I1112 17:34:33.292454 42255 yaml_helper.hpp:64] YAML Key:  imu_topic = /sim/kilo_imu
+I1112 17:34:33.293133 42255 yaml_helper.hpp:64] YAML Key:  sensor_type = LIO
+I1112 17:34:33.293143 42255 KILO.cc:60] SensorType = LIO
+I1112 17:34:33.293166 42255 yaml_helper.hpp:80] YAML Key: vel_process_cov = 20
+I1112 17:34:33.293185 42255 yaml_helper.hpp:80] YAML Key: imu_acc_process_cov = 500
+I1112 17:34:33.293200 42255 yaml_helper.hpp:80] YAML Key: imu_gyr_process_cov = 1000
+I1112 17:34:33.293215 42255 yaml_helper.hpp:80] YAML Key: acc_bias_process_cov = 0.001
+I1112 17:34:33.293228 42255 yaml_helper.hpp:80] YAML Key: gyr_bias_process_cov = 0.001
+I1112 17:34:33.293242 42255 yaml_helper.hpp:64] YAML Key:  imu_acc_meas_noise = 0.1
+I1112 17:34:33.293255 42255 yaml_helper.hpp:64] YAML Key:  imu_gyr_meas_noise = 0.01
+I1112 17:34:33.293268 42255 yaml_helper.hpp:80] YAML Key: p2plane_kernel_threshold = 5
+I1112 17:34:33.293280 42255 yaml_helper.hpp:80] YAML Key: ndt_kernel_threshold = 5
+I1112 17:34:33.293295 42255 yaml_helper.hpp:80] YAML Key: two_step_lidar_eskf = true
+I1112 17:34:33.293303 42255 yaml_helper.hpp:80] YAML Key: p2plane_enable = true
+I1112 17:34:33.293309 42255 yaml_helper.hpp:80] YAML Key: ndt_enable = true
+I1112 17:34:33.293321 42255 yaml_helper.hpp:80] YAML Key: use_state_covariance_for_lidar_points = true
+I1112 17:34:33.293334 42255 yaml_helper.hpp:80] YAML Key: ieskf_max_iterations = 3
+I1112 17:34:33.293360 42255 yaml_helper.hpp:80] YAML Key: gravity = 9.81
+I1112 17:34:33.293370 42255 yaml_helper.hpp:80] YAML Key: init_type = 2
+I1112 17:34:33.293391 42255 yaml_helper.hpp:64] YAML Key:  dept_err = 0.04
+I1112 17:34:33.293403 42255 yaml_helper.hpp:64] YAML Key:  beam_err = 0.2
+I1112 17:34:33.293413 42255 yaml_helper.hpp:64] YAML Key:  voxel_size = 0.5
+I1112 17:34:33.293439 42255 yaml_helper.hpp:80] YAML Key: capacity = 300000
+I1112 17:34:33.293449 42255 yaml_helper.hpp:80] YAML Key: nearby_type = 0
+I1112 17:34:33.293457 42255 yaml_helper.hpp:80] YAML Key: voxel_max_num = 50
+I1112 17:34:33.293466 42255 yaml_helper.hpp:80] YAML Key: planar_ratio = 0.1
+I1112 17:34:33.293475 42255 yaml_helper.hpp:80] YAML Key: planar_thickness = 0.1
+I1112 17:34:33.293485 42255 yaml_helper.hpp:80] YAML Key: ndt_min_points = 5
+I1112 17:34:33.293499 42255 yaml_helper.hpp:80] YAML Key: ndt_jitter = 1e-06
+I1112 17:34:33.293514 42255 yaml_helper.hpp:80] YAML Key: ndt_eigenvalue_regularization = true
+I1112 17:34:33.293526 42255 yaml_helper.hpp:80] YAML Key: ndt_min_eigenvalue = 1e-06
+I1112 17:34:33.293540 42255 yaml_helper.hpp:80] YAML Key: ndt_max_condition = 1000
+I1112 17:34:33.293560 42255 yaml_helper.hpp:64] YAML Key:  extrinsic_T = [0.2954, 0, 0.097]
+I1112 17:34:33.293576 42255 yaml_helper.hpp:64] YAML Key:  extrinsic_R = [-0.506184, -0.028895, 0.861941, 0, -0.999439, -0.033504, 0.862425, -0.016959, 0.5059]
+I1112 17:34:33.293591 42255 yaml_helper.hpp:64] YAML Key:  voxel_grid_resolution = 0.3
+I1112 17:34:33.293601 42255 yaml_helper.hpp:80] YAML Key: voxel_grid_mode = 1
+I1112 17:34:33.293607 42255 yaml_helper.hpp:80] YAML Key: voxel_grid_target_num = 3000
+I1112 17:34:33.293615 42255 yaml_helper.hpp:80] YAML Key: voxel_grid_overshoot = 1.5
+I1112 17:34:33.294251 42255 yaml_helper.hpp:80] YAML Key: kf_trans_threshold = 0.3
+I1112 17:34:33.294268 42255 yaml_helper.hpp:80] YAML Key: kf_degree_threshold = 10
+I1112 17:34:33.294278 42255 yaml_helper.hpp:80] YAML Key: kf_max_num_submap = 20
+I1112 17:34:33.294288 42255 yaml_helper.hpp:80] YAML Key: kf_max_dist_submap = 5
+I1112 17:34:33.294301 42255 yaml_helper.hpp:80] YAML Key: submap_idle_finish_timeout = 1
+I1112 17:34:33.294314 42255 yaml_helper.hpp:80] YAML Key: temp_result_save_folder = go2_sim_run
+I1112 17:34:33.354656 42255 yaml_helper.hpp:80] YAML Key: factor_graph_max_iterations = 100
+I1112 17:34:33.354753 42255 yaml_helper.hpp:80] YAML Key: odom_near_trans_sigma = 0.1
+I1112 17:34:33.354789 42255 yaml_helper.hpp:80] YAML Key: odom_near_rot_sigma_deg = 5
+I1112 17:34:33.354802 42255 yaml_helper.hpp:80] YAML Key: odom_next_trans_sigma_multiplier = 2
+I1112 17:34:33.354817 42255 yaml_helper.hpp:80] YAML Key: odom_next_rot_sigma_multiplier = 2
+I1112 17:34:33.354833 42255 yaml_helper.hpp:80] YAML Key: loopclosure_trans_sigma_multiplier = 10
+I1112 17:34:33.354848 42255 yaml_helper.hpp:80] YAML Key: loopclosure_rot_sigma_multiplier = 4
+I1112 17:34:33.354863 42255 yaml_helper.hpp:80] YAML Key: loopclosure_loss_scale = 3
+I1112 17:34:33.354871 42255 factor_graph.cc:38] FactorGraph is constructed
+I1112 17:34:33.354933 42255 yaml_helper.hpp:80] YAML Key: loop_closure_enable = true
+I1112 17:34:33.355579 42255 yaml_helper.hpp:80] YAML Key: loop_search_radius = 10
+I1112 17:34:33.355597 42255 yaml_helper.hpp:80] YAML Key: loop_min_id_separation = 2
+I1112 17:34:33.355607 42255 yaml_helper.hpp:80] YAML Key: loop_icp_max_corr_dist = 2
+I1112 17:34:33.355623 42255 yaml_helper.hpp:80] YAML Key: loop_icp_inlier_dist_threshold = 0.5
+I1112 17:34:33.355633 42255 yaml_helper.hpp:80] YAML Key: loop_icp_max_iterations = 20
+I1112 17:34:33.355641 42255 yaml_helper.hpp:80] YAML Key: loop_icp_fitness_threshold = 0.7
+I1112 17:34:33.355654 42255 yaml_helper.hpp:80] YAML Key: loop_icp_num_threads = 2
+I1112 17:34:33.355662 42255 yaml_helper.hpp:80] YAML Key: loop_verify_max_attempts = 1
+I1112 17:34:33.355672 42255 yaml_helper.hpp:80] YAML Key: loop_kiss_matcher_enabled = false
+I1112 17:34:33.355682 42255 yaml_helper.hpp:80] YAML Key: loop_kiss_inliers_threshold = 40
+I1112 17:34:33.355691 42255 yaml_helper.hpp:80] YAML Key: loop_kiss_refine_min_id_gap = 100
+I1112 17:34:33.355700 42255 yaml_helper.hpp:80] YAML Key: loop_kiss_use_quatro = true
+I1112 17:34:33.355711 42255 yaml_helper.hpp:80] YAML Key: temp_result_save_folder = go2_sim_run
+I1112 17:34:33.356076 42255 yaml_helper.hpp:80] YAML Key: min_range = 0.5
+I1112 17:34:33.356091 42255 yaml_helper.hpp:80] YAML Key: max_range = 20
+I1112 17:34:33.356102 42255 yaml_helper.hpp:80] YAML Key: filter_num = 1
+I1112 17:34:33.356110 42255 yaml_helper.hpp:64] YAML Key:  time_scale = 1
+I1112 17:34:33.356119 42255 yaml_helper.hpp:64] YAML Key:  lidar_type = 1
+I1112 17:34:33.356125 42255 lidar_processing.cc:5] Lidar Processing is Constructed
+I1112 17:34:33.720096 42370 ros_interface.cc:151] Lidar Loop Begin
+I1112 17:34:33.966171 42522 ros_interface.cc:156] IMU Loop Begin
+I1112 17:34:34.065910 42255 leg_kilo_node_ros2.cc:64] Leg KILO Node Starts
+I1112 17:34:46.522924 42255 KILO.cc:556] Gravity is initialized to  0.000  0.000 -9.810
+I1112 17:34:46.522958 42255 KILO.cc:557] IMU bw is initialized to 1.82457e-05 0.000182388 2.80348e-06
+I1112 17:34:46.523022 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9037, down_pts_size: 3257, success_pts_size: 3257, p2p_count: 0, ndt_count: 0}
+I1112 17:34:48.739032 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9031, down_pts_size: 3251, success_pts_size: 3251, p2p_count: 3181, ndt_count: 70}
+I1112 17:34:50.937393 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9035, down_pts_size: 3248, success_pts_size: 3248, p2p_count: 3179, ndt_count: 69}
+I1112 17:34:53.138444 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9036, down_pts_size: 3254, success_pts_size: 3254, p2p_count: 3186, ndt_count: 68}
+I1112 17:34:55.335114 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9029, down_pts_size: 3250, success_pts_size: 3250, p2p_count: 3181, ndt_count: 69}
+I1112 17:34:57.540148 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9037, down_pts_size: 3248, success_pts_size: 3247, p2p_count: 3183, ndt_count: 64}
+I1112 17:34:59.734901 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9036, down_pts_size: 3249, success_pts_size: 3249, p2p_count: 3179, ndt_count: 70}
+I1112 17:35:01.911382 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9036, down_pts_size: 3247, success_pts_size: 3247, p2p_count: 3180, ndt_count: 67}
+I1112 17:35:04.103284 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9040, down_pts_size: 3242, success_pts_size: 3242, p2p_count: 3167, ndt_count: 75}
+I1112 17:35:06.297168 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9037, down_pts_size: 3243, success_pts_size: 3243, p2p_count: 3172, ndt_count: 71}
+I1112 17:35:08.510576 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9043, down_pts_size: 3248, success_pts_size: 3248, p2p_count: 3179, ndt_count: 69}
+I1112 17:35:10.691915 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9038, down_pts_size: 3252, success_pts_size: 3252, p2p_count: 3184, ndt_count: 68}
+I1112 17:35:12.887667 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9035, down_pts_size: 3234, success_pts_size: 3234, p2p_count: 3162, ndt_count: 72}
+I1112 17:35:15.090413 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9029, down_pts_size: 3241, success_pts_size: 3240, p2p_count: 3171, ndt_count: 69}
+I1112 17:35:17.285841 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9031, down_pts_size: 3249, success_pts_size: 3249, p2p_count: 3178, ndt_count: 71}
+I1112 17:35:19.488917 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9029, down_pts_size: 3249, success_pts_size: 3249, p2p_count: 3177, ndt_count: 72}
+I1112 17:35:21.670174 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9038, down_pts_size: 3245, success_pts_size: 3245, p2p_count: 3171, ndt_count: 74}
+I1112 17:35:23.856078 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9038, down_pts_size: 3233, success_pts_size: 3233, p2p_count: 3160, ndt_count: 73}
+I1112 17:35:26.054988 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9028, down_pts_size: 3225, success_pts_size: 3225, p2p_count: 3155, ndt_count: 70}
+I1112 17:35:28.247901 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9030, down_pts_size: 3236, success_pts_size: 3236, p2p_count: 3164, ndt_count: 72}
+I1112 17:35:30.435158 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9035, down_pts_size: 3241, success_pts_size: 3240, p2p_count: 3171, ndt_count: 69}
+I1112 17:35:32.639072 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9035, down_pts_size: 3237, success_pts_size: 3237, p2p_count: 3160, ndt_count: 77}
+I1112 17:35:34.829908 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9026, down_pts_size: 3232, success_pts_size: 3232, p2p_count: 3160, ndt_count: 72}
+I1112 17:35:37.023597 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9033, down_pts_size: 3231, success_pts_size: 3231, p2p_count: 3157, ndt_count: 74}
+I1112 17:35:39.247782 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9029, down_pts_size: 3239, success_pts_size: 3239, p2p_count: 3170, ndt_count: 69}
+I1112 17:35:41.462369 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9029, down_pts_size: 3232, success_pts_size: 3232, p2p_count: 3154, ndt_count: 78}
+I1112 17:35:43.678867 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9028, down_pts_size: 3238, success_pts_size: 3238, p2p_count: 3164, ndt_count: 74}
+I1112 17:35:45.861284 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9040, down_pts_size: 3226, success_pts_size: 3226, p2p_count: 3147, ndt_count: 79}
+I1112 17:35:48.041873 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9034, down_pts_size: 3234, success_pts_size: 3234, p2p_count: 3159, ndt_count: 75}
+I1112 17:35:50.248807 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9028, down_pts_size: 3238, success_pts_size: 3238, p2p_count: 3167, ndt_count: 71}
+I1112 17:35:52.455451 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9032, down_pts_size: 3238, success_pts_size: 3238, p2p_count: 3172, ndt_count: 66}
+I1112 17:35:54.640486 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9028, down_pts_size: 3226, success_pts_size: 3226, p2p_count: 3156, ndt_count: 70}
+I1112 17:35:56.855782 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9032, down_pts_size: 3224, success_pts_size: 3224, p2p_count: 3155, ndt_count: 69}
+I1112 17:35:59.060804 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9028, down_pts_size: 3237, success_pts_size: 3237, p2p_count: 3157, ndt_count: 80}
+I1112 17:36:01.240283 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9029, down_pts_size: 3234, success_pts_size: 3234, p2p_count: 3160, ndt_count: 74}
+I1112 17:36:03.448495 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9034, down_pts_size: 3238, success_pts_size: 3238, p2p_count: 3161, ndt_count: 77}
+I1112 17:36:05.642722 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9031, down_pts_size: 3232, success_pts_size: 3232, p2p_count: 3159, ndt_count: 73}
+I1112 17:36:07.848220 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9031, down_pts_size: 3229, success_pts_size: 3229, p2p_count: 3155, ndt_count: 74}
+I1112 17:36:10.033280 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9031, down_pts_size: 3231, success_pts_size: 3231, p2p_count: 3155, ndt_count: 76}
+I1112 17:36:12.243475 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9036, down_pts_size: 3231, success_pts_size: 3231, p2p_count: 3157, ndt_count: 74}
+I1112 17:36:14.452641 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9033, down_pts_size: 3234, success_pts_size: 3234, p2p_count: 3158, ndt_count: 76}
+I1112 17:36:16.644809 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9036, down_pts_size: 3225, success_pts_size: 3225, p2p_count: 3153, ndt_count: 72}
+I1112 17:36:18.817886 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9033, down_pts_size: 3237, success_pts_size: 3237, p2p_count: 3160, ndt_count: 77}
+I1112 17:36:21.013680 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9038, down_pts_size: 3239, success_pts_size: 3239, p2p_count: 3166, ndt_count: 73}
+I1112 17:36:23.226800 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9025, down_pts_size: 3229, success_pts_size: 3229, p2p_count: 3145, ndt_count: 84}
+I1112 17:36:25.420857 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9032, down_pts_size: 3225, success_pts_size: 3225, p2p_count: 3151, ndt_count: 74}
+I1112 17:36:27.628298 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9029, down_pts_size: 3239, success_pts_size: 3239, p2p_count: 3164, ndt_count: 75}
+I1112 17:36:29.804963 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9035, down_pts_size: 3230, success_pts_size: 3230, p2p_count: 3150, ndt_count: 80}
+I1112 17:36:31.989362 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9036, down_pts_size: 3237, success_pts_size: 3237, p2p_count: 3161, ndt_count: 76}
+I1112 17:36:34.194628 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9032, down_pts_size: 3232, success_pts_size: 3231, p2p_count: 3155, ndt_count: 76}
+I1112 17:36:36.408535 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9032, down_pts_size: 3241, success_pts_size: 3241, p2p_count: 3163, ndt_count: 78}
+I1112 17:36:38.599500 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9035, down_pts_size: 3240, success_pts_size: 3240, p2p_count: 3156, ndt_count: 84}
+I1112 17:36:40.786700 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9030, down_pts_size: 3237, success_pts_size: 3237, p2p_count: 3160, ndt_count: 77}
+I1112 17:36:42.967748 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9029, down_pts_size: 3243, success_pts_size: 3243, p2p_count: 3168, ndt_count: 75}
+I1112 17:36:45.147707 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9036, down_pts_size: 3235, success_pts_size: 3235, p2p_count: 3163, ndt_count: 72}
+I1112 17:36:47.334829 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9037, down_pts_size: 3231, success_pts_size: 3231, p2p_count: 3157, ndt_count: 74}
+I1112 17:36:49.508256 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9030, down_pts_size: 3237, success_pts_size: 3237, p2p_count: 3160, ndt_count: 77}
+I1112 17:36:51.688462 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9037, down_pts_size: 3250, success_pts_size: 3249, p2p_count: 3179, ndt_count: 70}
+I1112 17:36:53.884939 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9033, down_pts_size: 3235, success_pts_size: 3234, p2p_count: 3157, ndt_count: 77}
+I1112 17:36:56.057081 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9033, down_pts_size: 3233, success_pts_size: 3232, p2p_count: 3159, ndt_count: 73}
+I1112 17:36:58.239632 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9033, down_pts_size: 3253, success_pts_size: 3253, p2p_count: 3171, ndt_count: 82}
+I1112 17:37:00.424352 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9036, down_pts_size: 3244, success_pts_size: 3244, p2p_count: 3174, ndt_count: 70}
+I1112 17:37:02.614135 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9037, down_pts_size: 3238, success_pts_size: 3238, p2p_count: 3159, ndt_count: 79}
+I1112 17:37:04.806696 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9037, down_pts_size: 3237, success_pts_size: 3237, p2p_count: 3161, ndt_count: 76}
+I1112 17:37:07.017445 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9032, down_pts_size: 3234, success_pts_size: 3234, p2p_count: 3159, ndt_count: 75}
+I1112 17:37:09.198771 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9033, down_pts_size: 3245, success_pts_size: 3245, p2p_count: 3169, ndt_count: 76}
+I1112 17:37:11.366441 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9032, down_pts_size: 3254, success_pts_size: 3254, p2p_count: 3176, ndt_count: 78}
+I1112 17:37:13.574550 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9034, down_pts_size: 3233, success_pts_size: 3233, p2p_count: 3164, ndt_count: 69}
+I1112 17:37:15.789619 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9033, down_pts_size: 3235, success_pts_size: 3235, p2p_count: 3159, ndt_count: 76}
+I1112 17:37:17.990662 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9033, down_pts_size: 3239, success_pts_size: 3239, p2p_count: 3164, ndt_count: 75}
+I1112 17:37:20.208681 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9031, down_pts_size: 3244, success_pts_size: 3244, p2p_count: 3170, ndt_count: 74}
+I1112 17:37:22.408860 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9031, down_pts_size: 3254, success_pts_size: 3254, p2p_count: 3174, ndt_count: 80}
+I1112 17:37:24.623384 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9037, down_pts_size: 3244, success_pts_size: 3244, p2p_count: 3166, ndt_count: 78}
+I1112 17:37:26.821514 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9035, down_pts_size: 3237, success_pts_size: 3237, p2p_count: 3162, ndt_count: 75}
+I1112 17:37:29.017843 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9037, down_pts_size: 3248, success_pts_size: 3248, p2p_count: 3173, ndt_count: 75}
+I1112 17:37:31.202433 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9038, down_pts_size: 3243, success_pts_size: 3243, p2p_count: 3167, ndt_count: 76}
+I1112 17:37:33.385543 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9037, down_pts_size: 3240, success_pts_size: 3239, p2p_count: 3168, ndt_count: 71}
+I1112 17:37:35.563104 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9034, down_pts_size: 3243, success_pts_size: 3243, p2p_count: 3172, ndt_count: 71}
+I1112 17:37:37.740083 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9046, down_pts_size: 3248, success_pts_size: 3248, p2p_count: 3175, ndt_count: 73}
+I1112 17:37:39.936051 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9032, down_pts_size: 3243, success_pts_size: 3243, p2p_count: 3174, ndt_count: 69}
+I1112 17:37:42.132164 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9040, down_pts_size: 3245, success_pts_size: 3245, p2p_count: 3175, ndt_count: 70}
+I1112 17:37:44.340375 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9037, down_pts_size: 3248, success_pts_size: 3248, p2p_count: 3174, ndt_count: 74}
+I1112 17:37:46.533208 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9033, down_pts_size: 3239, success_pts_size: 3239, p2p_count: 3170, ndt_count: 69}
+I1112 17:37:48.731532 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9036, down_pts_size: 3240, success_pts_size: 3240, p2p_count: 3171, ndt_count: 69}
+I1112 17:37:50.934119 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9040, down_pts_size: 3239, success_pts_size: 3239, p2p_count: 3169, ndt_count: 70}
+I1112 17:37:53.134332 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9036, down_pts_size: 3239, success_pts_size: 3239, p2p_count: 3167, ndt_count: 72}
+I1112 17:37:55.333186 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9039, down_pts_size: 3238, success_pts_size: 3238, p2p_count: 3166, ndt_count: 72}
+I1112 17:37:57.514842 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9032, down_pts_size: 3254, success_pts_size: 3254, p2p_count: 3184, ndt_count: 70}
+I1112 17:37:59.710287 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9034, down_pts_size: 3245, success_pts_size: 3245, p2p_count: 3175, ndt_count: 70}
+I1112 17:38:01.911881 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9038, down_pts_size: 3251, success_pts_size: 3251, p2p_count: 3180, ndt_count: 71}
+I1112 17:38:04.103466 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9041, down_pts_size: 3245, success_pts_size: 3245, p2p_count: 3173, ndt_count: 72}
+I1112 17:38:06.294831 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9040, down_pts_size: 3247, success_pts_size: 3247, p2p_count: 3171, ndt_count: 76}
+I1112 17:38:08.486991 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9030, down_pts_size: 3247, success_pts_size: 3247, p2p_count: 3164, ndt_count: 83}
+I1112 17:38:10.686534 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9035, down_pts_size: 3240, success_pts_size: 3240, p2p_count: 3165, ndt_count: 75}
+I1112 17:38:12.872519 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9033, down_pts_size: 3239, success_pts_size: 3239, p2p_count: 3170, ndt_count: 69}
+I1112 17:38:15.074604 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9031, down_pts_size: 3238, success_pts_size: 3238, p2p_count: 3161, ndt_count: 77}
+I1112 17:38:17.267196 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9044, down_pts_size: 3233, success_pts_size: 3233, p2p_count: 3160, ndt_count: 73}
+I1112 17:38:19.450963 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9037, down_pts_size: 3237, success_pts_size: 3237, p2p_count: 3157, ndt_count: 80}
+I1112 17:38:21.653124 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9040, down_pts_size: 3243, success_pts_size: 3243, p2p_count: 3165, ndt_count: 78}
+I1112 17:38:23.835661 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9033, down_pts_size: 3255, success_pts_size: 3255, p2p_count: 3177, ndt_count: 78}
+I1112 17:38:26.033248 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9028, down_pts_size: 3239, success_pts_size: 3239, p2p_count: 3167, ndt_count: 72}
+I1112 17:38:28.234234 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9035, down_pts_size: 3235, success_pts_size: 3234, p2p_count: 3162, ndt_count: 72}
+I1112 17:38:30.432073 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9044, down_pts_size: 3240, success_pts_size: 3240, p2p_count: 3169, ndt_count: 71}
+I1112 17:38:32.616211 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9041, down_pts_size: 3240, success_pts_size: 3240, p2p_count: 3165, ndt_count: 75}
+I1112 17:38:34.811690 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9041, down_pts_size: 3238, success_pts_size: 3238, p2p_count: 3167, ndt_count: 71}
+I1112 17:38:36.981703 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9041, down_pts_size: 3227, success_pts_size: 3227, p2p_count: 3153, ndt_count: 74}
+I1112 17:38:39.170135 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9039, down_pts_size: 3226, success_pts_size: 3226, p2p_count: 3152, ndt_count: 74}
+I1112 17:38:41.373808 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9038, down_pts_size: 3234, success_pts_size: 3234, p2p_count: 3158, ndt_count: 76}
+I1112 17:38:43.569856 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9036, down_pts_size: 3226, success_pts_size: 3226, p2p_count: 3154, ndt_count: 72}
+I1112 17:38:45.732625 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9040, down_pts_size: 3230, success_pts_size: 3230, p2p_count: 3156, ndt_count: 74}
+I1112 17:38:47.921558 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9034, down_pts_size: 3233, success_pts_size: 3233, p2p_count: 3161, ndt_count: 72}
+I1112 17:38:50.131780 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9036, down_pts_size: 3219, success_pts_size: 3219, p2p_count: 3147, ndt_count: 72}
+I1112 17:38:52.349289 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9047, down_pts_size: 3231, success_pts_size: 3231, p2p_count: 3158, ndt_count: 73}
+I1112 17:38:54.558478 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9039, down_pts_size: 3229, success_pts_size: 3229, p2p_count: 3159, ndt_count: 70}
+I1112 17:38:56.760279 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9025, down_pts_size: 3241, success_pts_size: 3208, p2p_count: 3112, ndt_count: 96}
+I1112 17:38:58.948521 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8526, down_pts_size: 3026, success_pts_size: 2936, p2p_count: 2878, ndt_count: 58}
+I1112 17:39:01.171545 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 8508, down_pts_size: 3028, success_pts_size: 2981, p2p_count: 2846, ndt_count: 135}
+I1112 17:39:03.403349 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9228, down_pts_size: 3210, success_pts_size: 3210, p2p_count: 2953, ndt_count: 257}
+I1112 17:39:05.650533 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9278, down_pts_size: 2730, success_pts_size: 2682, p2p_count: 2555, ndt_count: 127}
+I1112 17:39:06.328274 42325 factor_graph.cc:117] FactorGraph optimization done. Iterations: 0, final cost: 0
+I1112 17:39:07.867733 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9588, down_pts_size: 2849, success_pts_size: 2848, p2p_count: 2744, ndt_count: 104}
+I1112 17:39:10.111008 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9715, down_pts_size: 3221, success_pts_size: 3155, p2p_count: 2862, ndt_count: 293}
+I1112 17:39:12.344714 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10035, down_pts_size: 3042, success_pts_size: 3034, p2p_count: 2696, ndt_count: 338}
+I1112 17:39:14.560907 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9732, down_pts_size: 2612, success_pts_size: 2568, p2p_count: 2390, ndt_count: 178}
+I1112 17:39:16.782152 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 9816, down_pts_size: 3159, success_pts_size: 3149, p2p_count: 2738, ndt_count: 411}
+I1112 17:39:19.033541 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10407, down_pts_size: 3208, success_pts_size: 3207, p2p_count: 2680, ndt_count: 527}
+I1112 17:39:21.271057 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10564, down_pts_size: 2989, success_pts_size: 2978, p2p_count: 2484, ndt_count: 494}
+I1112 17:39:23.506625 42255 ros_interface.cc:454] Lidar ProcessResult: { valid: 1, total_pts_size: 10671, down_pts_size: 2682, success_pts_size: 2668, p2p_count: 2281, ndt_count: 387}
+I1112 17:39:25.628501 42255 ros_interface.cc:192] Lidar thread stopped
+I1112 17:39:25.628527 42255 ros_interface.cc:196] IMU thread stopped
+I1112 17:39:25.659466 42325 factor_graph.cc:117] FactorGraph optimization done. Iterations: 1, final cost: 1.16945e-29
+I1112 17:39:25.670805 42255 ros_interface.cc:216] Backend stopped
+I1112 17:39:25.670836 42255 ros_interface.cc:46] Ros2 Interface is being Destructed
+I1112 17:39:25.671000 42255 backend.cc:42] Backend is destroyed
+I1112 17:39:25.671013 42255 factor_graph.cc:41] FactorGraph is destructed
+I1112 17:39:25.671984 42255 lidar_processing.cc:11] Lidar Processing is Destructed
+I1112 17:39:25.676896 42255 yaml_helper.hpp:80] YAML Key: auto_save_root = /home/an/go2_v4/runs/20261112_173432_nav/kilo
+I1112 17:39:25.676935 42255 yaml_helper.hpp:80] YAML Key: temp_result_save_folder = go2_sim_run
+I1112 17:39:25.677016 42255 leg_kilo_node_ros2.cc:103] Auto save: /home/an/go2_v4/src/legkilo/result/go2_sim_run/ -> /home/an/go2_v4/runs/20261112_173432_nav/kilo/kilo_20261112_173925
+I1112 17:39:25.677047 42255 yaml_helper.hpp:80] YAML Key: auto_save_voxel = 0.05
+I1112 17:39:25.677073 42255 headless_save.hpp:17] [save] Preparing output folder
+I1112 17:39:25.677292 42255 headless_save.hpp:17] [save] Loading runtime records
+I1112 17:39:25.682924 42255 yaml_helper.hpp:64] YAML Key:  extrinsic_T = [0.2954, 0, 0.097]
+I1112 17:39:25.682960 42255 yaml_helper.hpp:64] YAML Key:  extrinsic_R = [-0.506184, -0.028895, 0.861941, 0, -0.999439, -0.033504, 0.862425, -0.016959, 0.5059]
+I1112 17:39:25.728761 42255 headless_save.hpp:17] [save] Saving trajectories
+I1112 17:39:25.767675 42255 headless_save.hpp:17] [save] Saving global map
+I1112 17:39:25.791484 42255 headless_save.hpp:17] [save] Saving SLAM runtime results
+I1112 17:39:25.791513 42255 headless_save.hpp:17] [save] Writing documents
+I1112 17:39:25.791663 42255 leg_kilo_node_ros2.cc:105] Auto save done: /home/an/go2_v4/runs/20261112_173432_nav/kilo/kilo_20261112_173925
+I1112 17:39:25.791908 42255 leg_kilo_node_ros2.cc:109] RosInterface destroyed
+I1112 17:39:25.791916 42255 leg_kilo_node_ros2.cc:110] Leg KILO Node Ends
+I1112 17:39:25.791921 42255 timer_utils.hpp:66] ===== Every Component Average Time =====
+I1112 17:39:25.791929 42255 timer_utils.hpp:70] Lidar Processing average time : 0.221655 ms
+I1112 17:39:25.791936 42255 timer_utils.hpp:70] Downsampling average time : 0.249705 ms
+I1112 17:39:25.791942 42255 timer_utils.hpp:70] State predict/update - 1st average time : 2.0907 ms
+I1112 17:39:25.791949 42255 timer_utils.hpp:70] Backpropagate average time : 0.119135 ms
+I1112 17:39:25.791953 42255 timer_utils.hpp:70] State predict/update - 2nd average time : 1.45214 ms
+I1112 17:39:25.791960 42255 timer_utils.hpp:70] Voxel map update average time : 0.288098 ms
+I1112 17:39:25.791965 42255 timer_utils.hpp:70] FactorGraph Optimize:  average time : 0.312843 ms
+I1112 17:39:25.791970 42255 timer_utils.hpp:70] SLAM Result Recorder:  average time : 0.006043 ms
+I1112 17:39:25.791975 42255 timer_utils.hpp:72] ======================================

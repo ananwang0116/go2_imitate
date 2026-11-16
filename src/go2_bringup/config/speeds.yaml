@@ -1,0 +1,9 @@
+# The ONLY speed limits of go2_v2 (like geometry.yaml for distances). Read by dev_bridge (final clamp), safe_gate
+# (clamp before limiting), dev_teleop (key speeds), web_server (teleop clamp) and mot_nav (go2_nav). mot_recover's backup speed
+# (0.15) is its own parameter: a recovery speed, not a limit.
+# User decision 2026-10-25: forward 0.5, turn 0.5, back 0.3 for mapping AND navigation ("otherwise too slow").
+forward_mps: 0.5
+back_mps: 0.3
+side_mps: 0.2
+manual_side_mps: 0.3 # sideways limit with manual:=true (mapping only; dev_bridge, safe_gate, dev_teleop)
+turn_radps: 0.5

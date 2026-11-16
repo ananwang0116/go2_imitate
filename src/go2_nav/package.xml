@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>go2_nav</name>
+  <version>0.1.0</version>
+  <description>go2_v2 L3 motion: mot_nav = own costmap + A* planner + pure-pursuit follower with sampled local avoidance (C++), replaces Nav2's planner/controller servers.</description>
+  <maintainer email="liu675301@gmail.com">an</maintainer>
+  <license>MIT</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>rclcpp</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>diagnostic_msgs</depend>
+  <depend>go2_msgs</depend>
+  <depend>yaml-cpp</depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

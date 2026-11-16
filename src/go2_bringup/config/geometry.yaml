@@ -1,0 +1,31 @@
+# The ONLY geometry of go2_v2 (spec 3). No node may repeat a body size or distance in its own code or config.
+# Nesting (checked at start-up, the launch refuses to start when one fails):
+#   avoid_gap_m          >= safe_stop_gap_m + loc_sigma_m
+#   waypoint_clearance_m >= avoid_gap_m + waypoint_margin_m
+#   arrive_radius_m      >= loc_sigma_m
+# Derived, NOT keys (go2_nav PlanParams / FollowParams): mot_nav treats the body as two discs of radius body_half_width_m + safe_stop_gap_m whose
+#   centres sit body_half_length_m - body_half_width_m in front of and behind the body centre (they reach half length + safe_stop_gap).
+# MEASURE = placeholder until measured on the real dog (needs enable_motion and the user present, docs/01 section 11); do not trust the value.
+
+body_half_length_m: 0.35      # measured (old record)
+body_half_width_m: 0.20       # measured (old record)
+loc_sigma_m: 0.10             # MEASURE (phase 4: statistics of /loc_map_score); localisation error upper bound
+brake_decel_mps2: 0.50        # measured 2026-10-25 (runs/20261025_184117_map, key released at 0.34-0.37 m/s: stopped in 0.19-0.24 s,
+                              # coasted 0.04-0.06 m, ~1.5 m/s^2 incl. reaction); 0.5 = a third of that as margin (was 0.15, assumed)
+brake_reaction_s: 0.20        # kept: release -> stopped took 0.2 s in total at 0.35 m/s, so reaction is below it (not separated)
+safe_stop_gap_m: 0.10         # safe_gate: minimum clearance after braking
+avoid_gap_m: 0.20             # mot_nav's sampled trajectories are rewarded for clearance up to here (go2_nav follower.hpp)
+waypoint_margin_m: 0.10       # extra room a waypoint area needs on top of avoid_gap_m
+waypoint_clearance_m: 0.30    # width of the soft cost band beyond the hard limit (body_half_width + safe_stop_gap) in mot_nav's planner
+arrive_radius_m: 0.40         # default waypoint area radius
+
+# Livox Mid360 mount: pose of the lidar frame (`mid360_link`) in `base`, x forward / y left / z up. The unitree radar was removed 2026-10-30.
+# rpy is applied as R = Rz(yaw) Ry(pitch) Rx(roll) (ROS fixed-axis convention). Rotation measured 2026-10-30 with the dog standing still
+# (gravity in the lidar frame + a pillar 1.8 m front-left; docs/02_联调记录.md): lidar x = (-0.533, 0, 0.846), y = (0, -1, 0), z = (0.845, 0, 0.533)
+# in (forward, left, up), i.e. pitch -57.8, roll +2.8, yaw 180. The yaw 180 is the lidar's x axis pointing to the BACK of the dog (heading itself not measured).
+mid360_x_m: 0.2954            # MEASURE (user's hand estimate 2026-10-30, kept by the user: the lidar's HIGHEST point is 10 cm in front of the front-left hip joint centre, x=0.1934 in base; the optical centre is 2 mm further back for the 65 mm cylinder, size from memory, NOT checked against the data sheet)
+mid360_y_m: 0.00              # MEASURE (not measured; assumed on the dog's centre line, the front-left hip joint is at y=+0.0465)
+mid360_z_m: 0.097             # MEASURE (user's decision 2026-10-30: the optical centre is the measured 0.417 m above the ground, dog standing; base height 0.32 m is the nominal standing value, NOT read from this dog yet: z = 0.417 - /dev_state position[2])
+mid360_roll_deg: -1.92        # 2026-11-04 on the dog's board: from the Livox IMU gravity, standing on level ground (user's decision to take it as good; one stand-up only, see docs/5.md). 2026-10-30: 2.8; old installation: -1.1
+mid360_pitch_deg: -59.59      # 2026-11-04, same measurement as roll (2026-10-30: -57.8; old installation: -61.4). With these two the floor in front of the dog is level to 0.8 deg (was 2.9 deg), tools/check_mount_ground.py
+mid360_yaw_deg: 180.0         # measured 2026-10-30 (axis directions checked with a pillar); heading offset itself not measured
